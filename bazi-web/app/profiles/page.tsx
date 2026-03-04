@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { CITIES, getCitiesByProvince, findCityByName } from '@/lib/data/cities';
 
 interface Profile {
   id: string;
@@ -9,20 +10,42 @@ interface Profile {
   birthDate: string;
   birthTime: string;
   gender: 'male' | 'female';
+  birthPlace?: string;
+  longitude?: number;
   createdAt: string;
+}
+
+interface FormData {
+  name: string;
+  birthDate: string;
+  birthTime: string;
+  gender: 'male' | 'female';
+  birthPlace: string;
+  province: string;
+  longitude?: number;
 }
 
 export default function ProfilesPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     birthDate: '',
     birthTime: '',
-    gender: 'male' as 'male' | 'female',
-    birthPlace: ''
+    gender: 'male',
+    birthPlace: '',
+    province: '',
+    longitude: undefined
   });
+
+  // 按省份分组的城市
+  const citiesByProvince = useMemo(() => getCitiesByProvince(), []);
+  const provinces = Object.keys(citiesByProvince);
+
+  // 当前选中省份的城市列表
+  const currentProvinceCities = formData.province ? citiesByProvince[formData.province] : [];
 
   useEffect(() => {
     loadProfiles();
@@ -44,21 +67,96 @@ export default function ProfilesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 构建提交数据
+    const submitData = {
+      name: formData.name,
+      birthDate: formData.birthDate,
+      birthTime: formData.birthTime,
+      gender: formData.gender,
+      birthPlace: formData.province || formData.birthPlace,
+      longitude: formData.longitude
+    };
+
     try {
-      const response = await fetch('/api/profiles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+      let response;
+      if (editingId) {
+        // 编辑模式
+        response = await fetch(`/api/profiles/${editingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(submitData)
+        });
+      } else {
+        // 新建模式
+        response = await fetch('/api/profiles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(submitData)
+        });
+      }
 
       if (response.ok) {
         setShowForm(false);
-        setFormData({ name: '', birthDate: '', birthTime: '', gender: 'male', birthPlace: '' });
+        setEditingId(null);
+        setFormData({ name: '', birthDate: '', birthTime: '', gender: 'male', birthPlace: '', province: '', longitude: undefined });
         loadProfiles();
       }
     } catch (error) {
-      console.error('Failed to create profile:', error);
+      console.error('Failed to save profile:', error);
     }
+  };
+
+  const handleEdit = async (id: string) => {
+    try {
+      const response = await fetch(`/api/profiles/${id}`);
+      if (response.ok) {
+        const profile = await response.json();
+
+        // 查找对应的城市信息
+        let province = '';
+        if (profile.birthPlace) {
+          // 尝试从 birthPlace 中提取省份
+          const city = CITIES.find(c => profile.birthPlace.includes(c.name));
+          if (city) {
+            province = city.province;
+          }
+        }
+
+        setFormData({
+          name: profile.name,
+          birthDate: profile.birthDate,
+          birthTime: profile.birthTime,
+          gender: profile.gender,
+          birthPlace: profile.birthPlace || '',
+          province,
+          longitude: profile.longitude
+        });
+        setEditingId(id);
+        setShowForm(true);
+      }
+    } catch (error) {
+      console.error('Failed to load profile for editing:', error);
+    }
+  };
+
+  const handleProvinceChange = (province: string) => {
+    setFormData({
+      ...formData,
+      province,
+      birthPlace: province,
+      longitude: undefined // 重置经度，等待选择城市
+    });
+  };
+
+  const handleCityChange = (cityName: string) => {
+    const city = findCityByName(cityName);
+    setFormData({
+      ...formData,
+      province: formData.province, // 保留省份
+      birthPlace: city ? `${city.province}${city.name}` : cityName,
+      longitude: city?.longitude
+    });
   };
 
   const handleDelete = async (id: string) => {
@@ -119,13 +217,25 @@ export default function ProfilesPage() {
                   <p className="text-sm text-zinc-500">
                     {profile.birthDate} {profile.birthTime} · {profile.gender === 'male' ? '男' : '女'}
                   </p>
+                  {profile.birthPlace && (
+                    <p className="text-xs text-zinc-400 mt-1">
+                      {profile.birthPlace}
+                      {profile.longitude != null && `（东经${profile.longitude.toFixed(1)}°）`}
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(profile.id)}
+                    className="text-blue-500 hover:text-blue-600 text-sm"
+                  >
+                    编辑
+                  </button>
                   <Link
-                    href={`/chat?profile=${profile.id}`}
+                    href={`/profiles/${profile.id}`}
                     className="text-amber-600 hover:text-amber-700 text-sm"
                   >
-                    对话
+                    查看
                   </Link>
                   <button
                     onClick={() => handleDelete(profile.id)}
@@ -144,7 +254,9 @@ export default function ProfilesPage() {
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4 text-zinc-800 dark:text-zinc-100">新建档案</h2>
+            <h2 className="text-xl font-semibold mb-4 text-zinc-800 dark:text-zinc-100">
+              {editingId ? '编辑档案' : '新建档案'}
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">姓名</label>
@@ -188,19 +300,52 @@ export default function ProfilesPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">出生地点（可选）</label>
-                <input
-                  type="text"
-                  value={formData.birthPlace}
-                  onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value })}
-                  placeholder="如：北京市"
+                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">出生省份/地区</label>
+                <select
+                  value={formData.province}
+                  onChange={(e) => handleProvinceChange(e.target.value)}
                   className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100"
-                />
+                >
+                  <option value="">请选择省份</option>
+                  {provinces.map(province => (
+                    <option key={province} value={province}>{province}</option>
+                  ))}
+                </select>
               </div>
+              {formData.province && (
+                <div>
+                  <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">
+                    出生城市
+                    <span className="text-xs text-zinc-500 ml-2">（用于真太阳时校正）</span>
+                  </label>
+                  <select
+                    value={currentProvinceCities.find(c => c.longitude === formData.longitude)?.name || ''}
+                    onChange={(e) => {
+                      const cityName = e.target.value;
+                      const city = currentProvinceCities.find(c => c.name === cityName);
+                      if (city) {
+                        handleCityChange(cityName);
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100"
+                  >
+                    <option value="">请选择城市</option>
+                    {currentProvinceCities.map(city => (
+                      <option key={city.name} value={city.name}>
+                        {city.name}（东经{city.longitude.toFixed(1)}°）
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="flex gap-2 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowForm(false)}
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingId(null);
+                    setFormData({ name: '', birthDate: '', birthTime: '', gender: 'male', birthPlace: '', province: '', longitude: undefined });
+                  }}
                   className="flex-1 px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-700 dark:text-zinc-300"
                 >
                   取消
@@ -209,7 +354,7 @@ export default function ProfilesPage() {
                   type="submit"
                   className="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
                 >
-                  创建
+                  {editingId ? '保存' : '创建'}
                 </button>
               </div>
             </form>

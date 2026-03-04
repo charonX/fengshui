@@ -1,16 +1,21 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import ChatInput from '@/components/ChatInput';
 import MessageList from '@/components/MessageList';
+import ChatInput from '@/components/ChatInput';
 import SuggestionChips from '@/components/SuggestionChips';
-import Link from 'next/link';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+}
+
+interface ChatPanelProps {
+  profileId: string;
+  profileName?: string;
+  onBack?: () => void;
 }
 
 const SUGGESTIONS = [
@@ -20,7 +25,7 @@ const SUGGESTIONS = [
   '身强身弱是什么意思'
 ];
 
-export default function ChatPage() {
+export default function ChatPanel({ profileId, profileName, onBack }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -52,7 +57,8 @@ export default function ChatPage() {
           messages: [...messages, userMessage].map((m) => ({
             role: m.role,
             content: m.content
-          }))
+          })),
+          profileId
         })
       });
 
@@ -89,24 +95,23 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-zinc-900">
+    <div className="flex flex-col h-full bg-white dark:bg-zinc-900">
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
-        <Link
-          href="/"
-          className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </Link>
-        <h1 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">八字 AI 命理师</h1>
-        <Link
-          href="/profiles"
-          className="text-sm text-amber-600 hover:text-amber-700"
-        >
-          档案管理
-        </Link>
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
+        <h1 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">
+          {profileName ? `${profileName}的命理分析` : '八字 AI 命理师'}
+        </h1>
+        <div className="w-6" /> {/* Spacer for balance */}
       </header>
 
       {/* Messages */}
@@ -117,7 +122,9 @@ export default function ChatPage() {
             你好，我是你的 AI 命理师
           </h2>
           <p className="text-zinc-600 dark:text-zinc-400 mb-8">
-            有什么可以帮你的吗？
+            {profileName
+              ? `我已经看到${profileName}的八字信息了，有什么想要了解的吗？`
+              : '有什么可以帮你的吗？'}
           </p>
           <SuggestionChips
             suggestions={SUGGESTIONS}

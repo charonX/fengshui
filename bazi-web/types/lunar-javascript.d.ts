@@ -8,7 +8,6 @@ declare module 'lunar-javascript' {
 
   export class Lunar {
     static fromDate(date: Date): Lunar;
-    static getJieQi(year: number, month: number, jq: string): any;
     getYearGan(): string;
     getYearZhi(): string;
     getMonthGan(): string;
@@ -21,6 +20,8 @@ declare module 'lunar-javascript' {
     getYear(): number;
     getMonth(): number;
     getDay(): number;
+    getJieQi(): string;
+    getJieQiTable(): Record<string, any>;
   }
 
   export class EightChar {
