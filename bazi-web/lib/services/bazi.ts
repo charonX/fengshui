@@ -283,7 +283,7 @@ export function calculateBazi(
   const zodiac = eightChar.getYearZhi(); // 年支为生肖
 
   // 获取节气信息
-  const jieQi = [];
+  const jieQi: string[] = [];
   const jieQiTable = [
     '立春', '雨水', '惊蛰', '春分', '清明', '谷雨',
     '立夏', '小满', '芒种', '夏至', '小暑', '大暑',
@@ -638,7 +638,8 @@ export interface ShenqiangResult {
   dingLiangLevel: '极强' | '很强' | '强' | '稍强' | '中和' | '稍弱' | '弱' | '很弱' | '极弱';
   // 特殊格局
   isZhuanWang: boolean; // 专旺格（极强）
-  isCongWang: boolean; // 从旺格（极弱）
+  isCongWang: boolean; // 从势格（极弱）
+  patternName: string; // 格局具体名称，如"真·曲直格"、"假·从势格"、"普通格局"
   // 用神五行（治病的药，平衡命局的关键）
   yongShen: string[];
   // 喜神五行（用神的盟友，生助用神）
@@ -665,6 +666,8 @@ export interface ShenqiangResult {
     weightTongFang: number; // 加权后同方得分
     weightYiFang: number; // 加权后异方得分
   };
+  // 综合判定日志
+  analysisLogs?: string[];
 }
 
 /**
@@ -689,26 +692,26 @@ const WU_XING_KE: Record<string, string> = {
 /**
  * 五行四时用事权重（旺相休囚死）
  * 按月份（地支）划分，每个五行在当月的状态
- * 权重：旺=1.0, 相=0.8, 休=0.6, 囚=0.4, 死=0.2
+ * 权重：旺=2.0, 相=1.5, 休=1.0, 囚=0.7, 死=0.5
  */
 const WU_XING_SI_SHI: Record<string, Record<string, number>> = {
   // 寅卯月（春）：木旺、火相、水休、金囚、土死
-  '寅': { '木': 1.0, '火': 0.8, '水': 0.6, '金': 0.4, '土': 0.2 },
-  '卯': { '木': 1.0, '火': 0.8, '水': 0.6, '金': 0.4, '土': 0.2 },
+  '寅': { '木': 2.0, '火': 1.5, '水': 1.0, '金': 0.7, '土': 0.5 },
+  '卯': { '木': 2.0, '火': 1.5, '水': 1.0, '金': 0.7, '土': 0.5 },
   // 巳午月（夏）：火旺、土相、木休、水囚、金死
-  '巳': { '火': 1.0, '土': 0.8, '木': 0.6, '水': 0.4, '金': 0.2 },
-  '午': { '火': 1.0, '土': 0.8, '木': 0.6, '水': 0.4, '金': 0.2 },
+  '巳': { '火': 2.0, '土': 1.5, '木': 1.0, '水': 0.7, '金': 0.5 },
+  '午': { '火': 2.0, '土': 1.5, '木': 1.0, '水': 0.7, '金': 0.5 },
   // 申酉月（秋）：金旺、水相、土休、火囚、木死
-  '申': { '金': 1.0, '水': 0.8, '土': 0.6, '火': 0.4, '木': 0.2 },
-  '酉': { '金': 1.0, '水': 0.8, '土': 0.6, '火': 0.4, '木': 0.2 },
+  '申': { '金': 2.0, '水': 1.5, '土': 1.0, '火': 0.7, '木': 0.5 },
+  '酉': { '金': 2.0, '水': 1.5, '土': 1.0, '火': 0.7, '木': 0.5 },
   // 亥子月（冬）：水旺、木相、金休、土囚、火死
-  '亥': { '水': 1.0, '木': 0.8, '金': 0.6, '土': 0.4, '火': 0.2 },
-  '子': { '水': 1.0, '木': 0.8, '金': 0.6, '土': 0.4, '火': 0.2 },
+  '亥': { '水': 2.0, '木': 1.5, '金': 1.0, '土': 0.7, '火': 0.5 },
+  '子': { '水': 2.0, '木': 1.5, '金': 1.0, '土': 0.7, '火': 0.5 },
   // 辰戌丑未月（四季月）：土旺、金相、火休、木囚、水死
-  '辰': { '土': 1.0, '金': 0.8, '火': 0.6, '木': 0.4, '水': 0.2 },
-  '戌': { '土': 1.0, '金': 0.8, '火': 0.6, '木': 0.4, '水': 0.2 },
-  '丑': { '土': 1.0, '金': 0.8, '火': 0.6, '木': 0.4, '水': 0.2 },
-  '未': { '土': 1.0, '金': 0.8, '火': 0.6, '木': 0.4, '水': 0.2 }
+  '辰': { '土': 2.0, '金': 1.5, '火': 1.0, '木': 0.7, '水': 0.5 },
+  '戌': { '土': 2.0, '金': 1.5, '火': 1.0, '木': 0.7, '水': 0.5 },
+  '丑': { '土': 2.0, '金': 1.5, '火': 1.0, '木': 0.7, '水': 0.5 },
+  '未': { '土': 2.0, '金': 1.5, '火': 1.0, '木': 0.7, '水': 0.5 }
 };
 
 /**
@@ -865,72 +868,73 @@ export function analyzeShenqiang(result: BaziResult): ShenqiangResult {
   const jiChuTongFang = tianGanTongFang + diZhuTongFang + cangGanTongFang;
   const jiChuYiFang = tianGanYiFang + diZhuYiFang + cangGanYiFang;
 
-  // 加权计算（考虑月令权重）
+  // 加权计算（代入五行四季旺相休囚死权重）
   let weightTongFang = 0;
   let weightYiFang = 0;
 
-  // 天干加权（考虑月令）
+  // 天干加权 (基础数量1 * 季节权重)
   allGan.forEach(gan => {
     const wx = TIAN_GAN_WU_XING[gan];
-    const weight = WU_XING_SI_SHI[yueZhi][wx] || 0.5;
+    const multiplier = WU_XING_SI_SHI[yueZhi][wx] || 1.0;
     if (tongFangWuXing.includes(wx)) {
-      weightTongFang += weight;
+      weightTongFang += multiplier;
     } else if (yiFangWuXing.includes(wx)) {
-      weightYiFang += weight;
+      weightYiFang += multiplier;
     }
   });
 
-  // 地支主气加权（月令权重更大）
-  allZhu.forEach((zhi, index) => {
+  // 地支主气加权 (基础数量1 * 季节权重)
+  allZhu.forEach(zhi => {
     const wx = DI_ZHI_WU_XING[zhi];
-    let weight = WU_XING_SI_SHI[yueZhi][wx] || 0.5;
-    // 月支权重加倍
-    if (index === 1) weight *= 1.5;
+    const multiplier = WU_XING_SI_SHI[yueZhi][wx] || 1.0;
     if (tongFangWuXing.includes(wx)) {
-      weightTongFang += weight;
+      weightTongFang += multiplier;
     } else if (yiFangWuXing.includes(wx)) {
-      weightYiFang += weight;
+      weightYiFang += multiplier;
     }
   });
 
-  // 藏干加权（权重减半）
+  // 藏干加权 (基础数量0.5 * 季节权重)
   allCangGan.forEach(gan => {
     const wx = TIAN_GAN_WU_XING[gan];
-    const weight = (WU_XING_SI_SHI[yueZhi][wx] || 0.5) * 0.5;
+    const multiplier = (WU_XING_SI_SHI[yueZhi][wx] || 1.0) * 0.5;
     if (tongFangWuXing.includes(wx)) {
-      weightTongFang += weight;
+      weightTongFang += multiplier;
     } else if (yiFangWuXing.includes(wx)) {
-      weightYiFang += weight;
+      weightYiFang += multiplier;
     }
   });
 
-  // 计算综合得分（同方占比）
+  // 阵营力量比例 (我方 / 敌方)
+  const ratio = weightYiFang === 0 ? 999 : (weightTongFang / weightYiFang);
+
+  // 计算综合百分比得分（同方占比，满分100，用于UI保留显示）
   const totalWeight = weightTongFang + weightYiFang;
   const totalScore = totalWeight > 0 ? (weightTongFang / totalWeight) * 100 : 50;
 
-  // 定量等级判定（9 级）
+  // 定量等级判定（陆致极《八字命理学》9级图解分析法）
   let dingLiangLevel: '极强' | '很强' | '强' | '稍强' | '中和' | '稍弱' | '弱' | '很弱' | '极弱';
-  if (totalScore >= 90) {
+  if (ratio >= 2.5) {
     dingLiangLevel = '极强';
-  } else if (totalScore >= 80) {
+  } else if (ratio >= 1.8) {
     dingLiangLevel = '很强';
-  } else if (totalScore >= 70) {
+  } else if (ratio >= 1.3) {
     dingLiangLevel = '强';
-  } else if (totalScore >= 60) {
+  } else if (ratio >= 1.1) {
     dingLiangLevel = '稍强';
-  } else if (totalScore >= 40) {
+  } else if (ratio >= 0.9) {
     dingLiangLevel = '中和';
-  } else if (totalScore >= 30) {
+  } else if (ratio >= 0.7) {
     dingLiangLevel = '稍弱';
-  } else if (totalScore >= 20) {
+  } else if (ratio >= 0.5) {
     dingLiangLevel = '弱';
-  } else if (totalScore >= 10) {
+  } else if (ratio >= 0.3) {
     dingLiangLevel = '很弱';
   } else {
     dingLiangLevel = '极弱';
   }
 
-  // ========== 三、逻辑修正：特殊陷阱处理 ==========
+  // ========== 三、逻辑修正：特殊陷阱与格局处理 ==========
 
   // 检查是否有根（无根则即使有印也无法真正得地）
   const hasRoot = deDi;
@@ -938,22 +942,68 @@ export function analyzeShenqiang(result: BaziResult): ShenqiangResult {
   // 母慈灭子检查：印星过旺而日主无根
   const isMuCiMieZi = !hasRoot && deShengCount >= 2 && !deZhu;
 
-  // 专旺格检查：极强且顺势
-  const isZhuanWang = (dingLiangLevel === '极强' || dingLiangLevel === '很强') && hasRoot && jiChuTongFang >= 6;
+  let isZhuanWang = false;
+  let isCongWang = false;
+  let patternName = '普通格局';
 
-  // 从旺格检查：极弱且无依无靠
-  const isCongWang = (dingLiangLevel === '极弱' || dingLiangLevel === '很弱') && !hasRoot && jiChuYiFang >= 6;
+  // 1. 专旺格名称映射字典
+  const zhuanWangNames: Record<string, string> = {
+    '木': '曲直格',
+    '火': '炎上格',
+    '土': '稼穑格',
+    '金': '从革格',
+    '水': '润下格'
+  };
+
+  // 2. 统计逆势五行数量（专旺格的逆势/敌对势力：官杀克我，财星破印）
+  const zhuanWangEnemyElements = [keWo, woKe].filter(Boolean);
+  const zhuanWangEnemyCount =
+    allGan.filter(g => zhuanWangEnemyElements.includes(TIAN_GAN_WU_XING[g])).length +
+    allZhu.filter(z => zhuanWangEnemyElements.includes(DI_ZHI_WU_XING[z])).length;
+
+  // 3. 拦截条件执行：校验专旺格
+  if ((dingLiangLevel === '极强' || dingLiangLevel === '很强') && hasRoot) {
+    // 必须当令（该五行在出生的月份状态必须为“旺”，对应权重 2.0）
+    const isDangLing = WU_XING_SI_SHI[yueZhi][riGanWuXing] === 2.0;
+
+    if (isDangLing) {
+      if (zhuanWangEnemyCount === 0) {
+        isZhuanWang = true;
+        patternName = `真·${zhuanWangNames[riGanWuXing]}`;
+      } else if (zhuanWangEnemyCount === 1) {
+        isZhuanWang = true;
+        // 假专旺，假定通过虚浮或合化校验
+        patternName = `假·${zhuanWangNames[riGanWuXing]}`;
+      }
+    }
+  }
+
+  // 4. 拦截条件执行：校验从势格（极弱端）
+  if (!isZhuanWang && (dingLiangLevel === '极弱' || dingLiangLevel === '很弱') && !hasRoot) {
+    // 判定同盟势力（印星/比劫）数量
+    const allyElementsCount =
+      allGan.filter(g => tongFangWuXing.includes(TIAN_GAN_WU_XING[g])).length +
+      allZhu.filter(z => tongFangWuXing.includes(DI_ZHI_WU_XING[z])).length;
+
+    if (allyElementsCount === 0) {
+      isCongWang = true;
+      patternName = '真·从势格';
+    } else if (allyElementsCount === 1) {
+      isCongWang = true;
+      patternName = '假·从势格';
+    }
+  }
 
   // ========== 四、综合评分和结论 ==========
 
-  // 综合评分（基于定量得分）
+  // 综合评分（基于百分比定量得分保留）
   const score = Math.round(totalScore);
 
-  // 结论判定
+  // 结论判定（基于比值）
   let conclusion: '身强' | '身弱' | '中和';
-  if (totalScore >= 60) {
+  if (ratio >= 1.1) {
     conclusion = '身强';
-  } else if (totalScore <= 40) {
+  } else if (ratio < 0.9) {
     conclusion = '身弱';
   } else {
     conclusion = '中和';
@@ -966,112 +1016,89 @@ export function analyzeShenqiang(result: BaziResult): ShenqiangResult {
     conclusion = '身弱';
   }
 
-  // ========== 五、用神、喜神、忌神、闲神计算（全面多视角合并） ==========
+  // ========== 五、用神、忌神计算（基于陆致极多视角分析模型） ==========
 
   const yongShenCandidates: string[] = [];
-  const xiShenCandidates: string[] = [];
   const jiShenCandidates: string[] = [];
-  const xianShenCandidates: string[] = [];
+  const analysisLogs: string[] = [];
 
-  // 获取月令主气十神，用于格局判断参考
-  const yueZhiMainGan = DI_ZHI_CANG_GAN[yueZhi] ? DI_ZHI_CANG_GAN[yueZhi][0] : '';
-  const yueLingShiShen = yueZhiMainGan ? calculateShiShen(riGan, yueZhiMainGan) : '';
+  const FIVE_ELEMENTS = ['木', '火', '土', '金', '水'];
+  const getRelation = (dmElement: string, targetElement: string) => {
+    const dmIdx = FIVE_ELEMENTS.indexOf(dmElement);
+    const targetIdx = FIVE_ELEMENTS.indexOf(targetElement);
+    const diff = (targetIdx - dmIdx + 5) % 5;
+    const relations: Record<number, string> = {
+      0: '比劫 (同我)',
+      1: '食伤 (我生)',
+      2: '财星 (我克)',
+      3: '官杀 (克我)',
+      4: '印星 (生我)'
+    };
+    return relations[diff];
+  };
 
-  // 一、 形象视角：极值/特殊结构优先判断
+  // 维度一：特殊格局拦截 (形象视角)
   if (isZhuanWang) {
-    // 专旺格（极强）：顺应其极旺之势
-    // 用神：首选食伤泄秀（防止溢满），或用印星顺生
-    if (woSheng) yongShenCandidates.push(woSheng);
-    if (shengWo) xiShenCandidates.push(shengWo);
-    if (tongDang) xiShenCandidates.push(tongDang);
-    // 忌神：绝对忌讳官杀（犯旺），也不能用财星（群劫争财）
-    if (keWo) jiShenCandidates.push(keWo);
-    if (woKe) jiShenCandidates.push(woKe);
+    analysisLogs.push("【形象视角】：触发『专旺格』。全局同类气势极强，顺势而为。");
+    yongShenCandidates.push("印星/比劫 (顺应强势)");
+    yongShenCandidates.push("食伤 (顺泄旺气)");
+    jiShenCandidates.push("官杀 (犯旺大凶)");
+    jiShenCandidates.push("财星 (群劫争财)");
   } else if (isCongWang) {
-    // 从格（极弱）：弃命从势
-    // 用神：命局中最强旺的那股势力
-    const yiFangWeights = [
-      { wx: keWo, weight: allZhu.filter(z => DI_ZHI_WU_XING[z] === keWo).length },
-      { wx: woKe, weight: allZhu.filter(z => DI_ZHI_WU_XING[z] === woKe).length },
-      { wx: woSheng, weight: allZhu.filter(z => DI_ZHI_WU_XING[z] === woSheng).length }
-    ].sort((a, b) => b.weight - a.weight);
-
-    const bestYiFang = yiFangWeights[0].wx;
-    if (bestYiFang) yongShenCandidates.push(bestYiFang);
-
-    if (keWo && keWo !== bestYiFang) xiShenCandidates.push(keWo);
-    if (woKe && woKe !== bestYiFang) xiShenCandidates.push(woKe);
-    if (woSheng && woSheng !== bestYiFang) xiShenCandidates.push(woSheng);
-
-    // 忌神：帮扶日主的印星和比劫
-    if (shengWo) jiShenCandidates.push(shengWo);
-    if (tongDang) jiShenCandidates.push(tongDang);
+    analysisLogs.push("【形象视角】：触发『从旺格/从势格』。日主极弱无根，弃命从势。");
+    yongShenCandidates.push("财星/官杀/食伤 (全局最强旺的敌方势力)");
+    jiShenCandidates.push("印星/比劫 (逆全局旺势，妄图生扶日主大凶)");
   } else {
-    // 二、 强弱视角：基于“扶抑法”的基础平衡
-    if (conclusion === '身弱') {
-      // 偏弱用扶：必须从“日主同方”寻找
-      // 首选印星（生我，化杀生身），次选比劫（同我，帮身）
-      if (shengWo) yongShenCandidates.push(shengWo);
-      if (tongDang) xiShenCandidates.push(tongDang);
+    // 维度二：调候视角 (温度与湿度优先)
+    // 根据月支判断
+    const isHot = ['巳', '午', '未'].includes(yueZhi);
+    const isCold = ['亥', '子', '丑'].includes(yueZhi);
 
-      // 消耗和克制日主的“异方”皆为忌神
-      if (keWo) jiShenCandidates.push(keWo);
-      if (woKe) jiShenCandidates.push(woKe);
-      if (woSheng) jiShenCandidates.push(woSheng);
-    } else if (conclusion === '身强') {
-      // 偏强用抑：必须从“日主异方”寻找
-      // 如果印星太重（得生），取财星为用；否则首选官杀或食伤
-      if (deShengCount >= 2 && woKe) {
-        yongShenCandidates.push(woKe); // 印重用财克印
-        if (keWo) xiShenCandidates.push(keWo);
-        if (woSheng) xiShenCandidates.push(woSheng);
-      } else {
-        if (keWo) yongShenCandidates.push(keWo);
-        if (woSheng) yongShenCandidates.push(woSheng);
-        if (woKe) xiShenCandidates.push(woKe);
-      }
-
-      // 继续增加日主力量的五行为忌神
-      if (shengWo) jiShenCandidates.push(shengWo);
-      if (tongDang) jiShenCandidates.push(tongDang);
-    } else {
-      yongShenCandidates.push('金', '木', '水', '火', '土');
-      xianShenCandidates.push('平衡');
+    if (isHot) {
+      analysisLogs.push("【调候视角】：生于夏月，火炎土燥，『调候为急』。急需【水】来润局。");
+      yongShenCandidates.push(`水 (${getRelation(riGanWuXing, '水')})`);
+      jiShenCandidates.push(`火/燥土 (${getRelation(riGanWuXing, '火')})`);
+    } else if (isCold) {
+      analysisLogs.push("【调候视角】：生于冬月，天寒地冻，『调候为急』。急需【火】来照暖。");
+      yongShenCandidates.push(`火 (${getRelation(riGanWuXing, '火')})`);
+      jiShenCandidates.push(`水/寒金 (${getRelation(riGanWuXing, '水')})`);
     }
 
-    // 三、 调候视角：基于“寒暖燥湿”的紧急干预（优先级高于强弱）
-    // 夏月火炎土燥，冬月金寒水冷
-    const isSummer = ['巳', '午', '未'].includes(yueZhi);
-    const isWinter = ['亥', '子', '丑'].includes(yueZhi);
+    // 维度三：强弱扶抑视角 (基础平衡)
+    analysisLogs.push(`【扶抑视角】：当前日主状态为『${dingLiangLevel}』。`);
 
-    if (isSummer) {
-      // 调候为急，夏需水降温
-      yongShenCandidates.unshift('水');
-      // 夏月忌火和燥土
-      jiShenCandidates.unshift('火', '土');
-    } else if (isWinter) {
-      // 调候为急，冬需火驱寒
-      yongShenCandidates.unshift('火');
-      // 冬月忌水和冷金
-      jiShenCandidates.unshift('水', '金');
+    if (['极强', '很强', '强', '稍强'].includes(dingLiangLevel)) {
+      analysisLogs.push(" -> 判定：旺者宜克、宜泄、宜耗。用神需从『日主异方』选取。");
+      const guanShaWx = FIVE_ELEMENTS[(FIVE_ELEMENTS.indexOf(riGanWuXing) + 3) % 5];
+      const shiShangWx = FIVE_ELEMENTS[(FIVE_ELEMENTS.indexOf(riGanWuXing) + 1) % 5];
+      const caiXingWx = FIVE_ELEMENTS[(FIVE_ELEMENTS.indexOf(riGanWuXing) + 2) % 5];
+      yongShenCandidates.push(`官杀 [${guanShaWx}] (制身)`);
+      yongShenCandidates.push(`食伤 [${shiShangWx}] (泄秀)`);
+      yongShenCandidates.push(`财星 [${caiXingWx}] (耗身)`);
+
+      const yinXingWx = FIVE_ELEMENTS[(FIVE_ELEMENTS.indexOf(riGanWuXing) + 4) % 5];
+      jiShenCandidates.push(`印星 [${yinXingWx}] (生身过旺)`);
+      jiShenCandidates.push(`比劫 [${riGanWuXing}] (帮身过旺)`);
+    } else if (['极弱', '很弱', '弱', '稍弱'].includes(dingLiangLevel)) {
+      analysisLogs.push(" -> 判定：弱者宜助、宜帮。用神需从『日主同方』选取。");
+      const yinXingWx = FIVE_ELEMENTS[(FIVE_ELEMENTS.indexOf(riGanWuXing) + 4) % 5];
+      yongShenCandidates.push(`印星 [${yinXingWx}] (生助日主)`);
+      yongShenCandidates.push(`比劫 [${riGanWuXing}] (帮扶日主)`);
+
+      const guanShaWx = FIVE_ELEMENTS[(FIVE_ELEMENTS.indexOf(riGanWuXing) + 3) % 5];
+      const shiShangWx = FIVE_ELEMENTS[(FIVE_ELEMENTS.indexOf(riGanWuXing) + 1) % 5];
+      jiShenCandidates.push(`官杀 [${guanShaWx}] (克伐过重)`);
+      jiShenCandidates.push(`食伤 [${shiShangWx}] (泄身过重)`);
+    } else {
+      analysisLogs.push(" -> 判定：处于中和状态。");
     }
   }
 
-  // ====== 四、 进阶清理与去重 ======
-  // 把剩余未被明确判定为用、喜、忌的五行归为闲神
-  const allWuXing = ['金', '木', '水', '火', '土'];
-  allWuXing.forEach(wx => {
-    if (!yongShenCandidates.includes(wx) && !xiShenCandidates.includes(wx) && !jiShenCandidates.includes(wx)) {
-      xianShenCandidates.push(wx);
-    }
-  });
-
-  // 冲突处理：按数组先后顺序优先级进行去重，确保前面高优先级的判断覆盖后面的判断
-  // 例如：调候加入的"水"如果是忌神，在这里会被作为 yongShen 保留，并从 jiShen 中被安全剔除
   const finalYongShen = [...new Set(yongShenCandidates.filter(Boolean))];
-  const finalXiShen = [...new Set(xiShenCandidates.filter(wx => wx && !finalYongShen.includes(wx)))];
-  const finalJiShen = [...new Set(jiShenCandidates.filter(wx => wx && !finalYongShen.includes(wx) && !finalXiShen.includes(wx)))];
-  const finalXianShen = [...new Set(xianShenCandidates.filter(wx => wx && !finalYongShen.includes(wx) && !finalXiShen.includes(wx) && !finalJiShen.includes(wx)))];
+  const finalJiShen = [...new Set(jiShenCandidates.filter(Boolean))];
+  // 保持向前兼容
+  const finalXiShen: string[] = [];
+  const finalXianShen: string[] = [];
 
   // 计算简化评分（用于显示）
   const lingScore = deLing ? 40 : 0;
@@ -1090,6 +1117,7 @@ export function analyzeShenqiang(result: BaziResult): ShenqiangResult {
     dingLiangLevel,
     isZhuanWang,
     isCongWang,
+    patternName,
     tongFangScore: Math.round(weightTongFang * 10) / 10,
     yiFangScore: Math.round(weightYiFang * 10) / 10,
     totalScore: Math.round(totalScore),
@@ -1097,6 +1125,7 @@ export function analyzeShenqiang(result: BaziResult): ShenqiangResult {
     xiShen: finalXiShen,
     jiShen: finalJiShen,
     xianShen: finalXianShen,
+    analysisLogs,
     analysis: {
       lingScore,
       diScore,
