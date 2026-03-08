@@ -25,7 +25,7 @@ npm install
 npm run dev
 ```
 
-> **注意**：每个子项目目录下均有独立的 `.env` 相关配置需求，请参照对应文档配置如 `ANTHROPIC_API_KEY` 及 `JWT_SECRET` 等参数密钥。
+> **注意**：每个子项目目录下均有独立的 `.env` 相关配置需求，请参照对应文档配置如 `ANTHROPIC_API_KEY` 等参数密钥。
 
 ## 🤝 贡献与参与
 

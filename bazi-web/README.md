@@ -42,9 +42,7 @@ Bazi-Web 是一款基于现代 Web 技术构建的八字命理分析应用。它
 3. 环境变量配置：
    在项目根目录下创建一个 `.env.local` 或者是 `.env` 文件，完善必需的环境变量（重点是 Claude 的 API 金钥与 JWT 加密串等）：
    ```env
-   # 范例
    ANTHROPIC_API_KEY=your_claude_api_key_here
-   JWT_SECRET=a_very_secure_random_string_for_jwt
    ...
    ```
 
