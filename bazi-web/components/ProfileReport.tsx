@@ -20,53 +20,53 @@ export default function ProfileReport({
   liunian
 }: ProfileReportProps) {
   return (
-    <div className="h-full overflow-y-auto p-4 space-y-4">
+    <div className="h-full overflow-y-auto p-2 sm:p-4 space-y-6 custom-scrollbar">
       {/* 基本信息 */}
-      <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4">
-        <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-3">
-          基本信息
+      <div className="pb-8 border-b border-zinc-800 border-dashed">
+        <h2 className="text-sm font-mono tracking-widest text-zinc-400 mb-4 uppercase flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> 基本信息
         </h2>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-zinc-500">姓名</span>
-            <span className="text-zinc-800 dark:text-zinc-200 font-medium">{profile.name}</span>
+        <div className="space-y-3 text-sm">
+          <div className="flex justify-between items-center border-b border-white/[0.02] pb-2">
+            <span className="text-zinc-400">姓名</span>
+            <span className="text-zinc-200 font-medium tracking-wide">{profile.name}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-zinc-500">性别</span>
-            <span className="text-zinc-800 dark:text-zinc-200 font-medium">
+          <div className="flex justify-between items-center border-b border-white/[0.02] pb-2">
+            <span className="text-zinc-400">性别</span>
+            <span className="text-zinc-300">
               {profile.gender === 'male' ? '男' : '女'}
             </span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-zinc-500">生日</span>
-            <span className="text-zinc-800 dark:text-zinc-200 font-medium">{profile.birthDate}</span>
+          <div className="flex justify-between items-center border-b border-white/[0.02] pb-2">
+            <span className="text-zinc-400">生日</span>
+            <span className="text-zinc-300 font-mono tracking-wider">{profile.birthDate}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-zinc-500">出生时间</span>
+          <div className="flex justify-between items-start border-b border-white/[0.02] pb-2">
+            <span className="text-zinc-400 mt-1">出生时间</span>
             <div className="text-right">
-              <span className="text-zinc-800 dark:text-zinc-200 font-medium">{profile.birthTime}</span>
+              <span className="text-zinc-300 font-mono tracking-wider">{profile.birthTime}</span>
               {profile.longitude != null && (
-                <div className="text-xs text-zinc-500">
-                  真太阳时：{formatTrueSolarTime(profile.birthTime, profile.longitude).trueSolarTime}
+                <div className="text-xs text-zinc-400 mt-1">
+                  真太阳时: {formatTrueSolarTime(profile.birthTime, profile.longitude).trueSolarTime}
                 </div>
               )}
             </div>
           </div>
           {profile.birthPlace && (
-            <div className="flex justify-between">
-              <span className="text-zinc-500">出生地</span>
-              <span className="text-zinc-800 dark:text-zinc-200 font-medium">{profile.birthPlace}</span>
+            <div className="flex justify-between items-center border-b border-white/[0.02] pb-2">
+              <span className="text-zinc-400">出生地</span>
+              <span className="text-zinc-300">{profile.birthPlace}</span>
             </div>
           )}
           {profile.longitude != null && (
-            <div className="flex justify-between">
-              <span className="text-zinc-500">经度</span>
-              <span className="text-zinc-800 dark:text-zinc-200 font-medium">
-                东经{profile.longitude.toFixed(1)}°
-                <span className="text-xs text-zinc-500 ml-2">
+            <div className="flex justify-between items-start pt-1">
+              <span className="text-zinc-400">经度</span>
+              <div className="text-right text-zinc-300 font-mono text-xs">
+                东经 {profile.longitude.toFixed(1)}°
+                <div className="text-zinc-400 mt-1 lowercase">
                   ({formatTrueSolarTime(profile.birthTime, profile.longitude).description})
-                </span>
-              </span>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -95,42 +95,44 @@ export default function ProfileReport({
  */
 function BaziPanel({ bazi }: { bazi: BaziResult }) {
   return (
-    <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4">
-      <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-3">
-        八字排盘
+    <div className="pb-8 border-b border-zinc-800 border-dashed relative overflow-hidden">
+      <div className="absolute -right-4 -top-4 text-7xl opacity-[0.02] select-none pointer-events-none font-serif">命</div>
+      <h2 className="text-sm font-mono tracking-widest text-zinc-400 mb-6 uppercase flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> 八字原局
       </h2>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-3 relative z-10 pt-4">
         {/* 年柱 */}
-        <div className="text-center">
-          <div className="text-xs text-zinc-500 mb-1">年柱</div>
-          <div className="text-xl font-bold text-zinc-800 dark:text-zinc-100">
-            {bazi.nianZhu.gan}{bazi.nianZhu.zhi}
+        <div className="text-center font-serif">
+          <div className="text-[10px] uppercase font-mono tracking-widest text-zinc-400 mb-2">年柱</div>
+          <div className="text-2xl font-bold tracking-widest text-zinc-400">
+            {bazi.nianZhu.gan}<br />{bazi.nianZhu.zhi}
           </div>
         </div>
         {/* 月柱 */}
-        <div className="text-center">
-          <div className="text-xs text-zinc-500 mb-1">月柱</div>
-          <div className="text-xl font-bold text-zinc-800 dark:text-zinc-100">
-            {bazi.yueZhu.gan}{bazi.yueZhu.zhi}
+        <div className="text-center font-serif">
+          <div className="text-[10px] uppercase font-mono tracking-widest text-zinc-400 mb-2">月柱</div>
+          <div className="text-2xl font-bold tracking-widest text-zinc-400">
+            {bazi.yueZhu.gan}<br />{bazi.yueZhu.zhi}
           </div>
         </div>
         {/* 日柱 */}
-        <div className="text-center">
-          <div className="text-xs text-zinc-500 mb-1">日柱</div>
-          <div className="text-xl font-bold text-amber-600">
-            {bazi.riZhu.gan}{bazi.riZhu.zhi}
+        <div className="text-center font-serif">
+          <div className="text-[10px] uppercase font-mono tracking-widest text-white mb-2 relative z-10">命主</div>
+          <div className="text-2xl font-bold tracking-widest text-white relative z-10">
+            {bazi.riZhu.gan}<br />{bazi.riZhu.zhi}
           </div>
         </div>
         {/* 时柱 */}
-        <div className="text-center">
-          <div className="text-xs text-zinc-500 mb-1">时柱</div>
-          <div className="text-xl font-bold text-zinc-800 dark:text-zinc-100">
-            {bazi.shiZhu.gan}{bazi.shiZhu.zhi}
+        <div className="text-center font-serif">
+          <div className="text-[10px] uppercase font-mono tracking-widest text-zinc-400 mb-2">时柱</div>
+          <div className="text-2xl font-bold tracking-widest text-zinc-400">
+            {bazi.shiZhu.gan}<br />{bazi.shiZhu.zhi}
           </div>
         </div>
       </div>
-      <div className="mt-3 text-xs text-zinc-500 text-center">
-        日主：{bazi.riZhu.gan} · 生肖：{bazi.zodiac}
+      <div className="mt-5 pt-4 border-t border-white/[0.05] text-xs font-mono text-zinc-400 flex justify-between px-2">
+        <span>日主：<span className="text-white">{bazi.riZhu.gan}</span></span>
+        <span>生肖：<span className="text-white">{bazi.zodiac}</span></span>
       </div>
     </div>
   );
@@ -140,38 +142,39 @@ function BaziPanel({ bazi }: { bazi: BaziResult }) {
  * 五行统计面板
  */
 function WuxingPanel({ wuXing }: { wuXing: BaziResult['wuXing'] }) {
-  const maxCount = Math.max(...Object.values(wuXing));
   const total = Object.values(wuXing).reduce((a, b) => a + b, 0);
 
   const wuXingData = [
-    { name: '金', value: wuXing.jin, color: 'bg-amber-400' },
-    { name: '木', value: wuXing.mu, color: 'bg-green-500' },
-    { name: '水', value: wuXing.shui, color: 'bg-blue-500' },
-    { name: '火', value: wuXing.huo, color: 'bg-red-500' },
-    { name: '土', value: wuXing.tu, color: 'bg-yellow-600' }
+    { name: '金', value: wuXing.jin },
+    { name: '木', value: wuXing.mu },
+    { name: '水', value: wuXing.shui },
+    { name: '火', value: wuXing.huo },
+    { name: '土', value: wuXing.tu }
   ];
 
   return (
-    <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4">
-      <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-3">
-        五行统计
+    <div className="pb-8 border-b border-zinc-800 border-dashed">
+      <h2 className="text-sm font-mono tracking-widest text-zinc-400 mb-5 uppercase flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> 五行分布
       </h2>
-      <div className="space-y-2">
+      <div className="space-y-4">
         {wuXingData.map((item) => (
-          <div key={item.name} className="flex items-center gap-2">
-            <span className="text-sm text-zinc-500 w-6">{item.name}</span>
-            <div className="flex-1 h-4 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+          <div key={item.name} className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-sm text-zinc-400">
+              {item.name}
+            </div>
+            <div className="flex-1 h-1.5 bg-zinc-900 rounded-full overflow-hidden">
               <div
-                className={`h-full ${item.color} transition-all duration-300`}
+                className="h-full bg-zinc-400 transition-all duration-700 ease-out"
                 style={{ width: `${total > 0 ? (item.value / total) * 100 : 0}%` }}
               />
             </div>
-            <span className="text-sm text-zinc-700 dark:text-zinc-300 w-6 text-right">{item.value}</span>
+            <span className="text-xs font-mono text-zinc-400 w-8 text-right">{item.value}</span>
           </div>
         ))}
       </div>
-      <div className="mt-3 text-xs text-zinc-500 text-center">
-        总数：{total} 个
+      <div className="mt-5 pt-4 border-t border-white/[0.05] text-xs font-mono text-zinc-400 text-center">
+        总数：{total}
       </div>
     </div>
   );
@@ -182,24 +185,25 @@ function WuxingPanel({ wuXing }: { wuXing: BaziResult['wuXing'] }) {
  */
 function DayunPanel({ dayun }: { dayun: DayunInfo }) {
   return (
-    <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4">
-      <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-3">
-        大运走势
+    <div className="pb-8 border-b border-zinc-800 border-dashed relative overflow-hidden">
+      <div className="absolute -right-4 -bottom-4 text-7xl opacity-[0.02] select-none pointer-events-none font-serif">运</div>
+      <h2 className="text-sm font-mono tracking-widest text-zinc-400 mb-2 uppercase flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> 大运十年
       </h2>
-      <div className="text-sm text-zinc-500 mb-3">
-        {dayun.qiYunAge} 岁起运
+      <div className="text-xs font-mono text-zinc-400 mb-5 text-right">
+        {dayun.qiYunAge} 岁交运
       </div>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-2 relative z-10">
         {dayun.dayunList.slice(0, 8).map((step, index) => (
-          <div key={index} className="text-center p-2 bg-white dark:bg-zinc-700 rounded-lg">
-            <div className="text-lg font-bold text-zinc-800 dark:text-zinc-100">
+          <div key={index} className="flex flex-col items-center justify-center p-3 bg-zinc-900/50 rounded-xl border border-zinc-800 transition-colors hover:bg-zinc-800">
+            <div className="text-lg tracking-widest font-medium text-zinc-300 mb-1">
               {step.gan}{step.zhi}
             </div>
-            <div className="text-xs text-zinc-500 mt-1">
+            <div className="text-[10px] text-zinc-400 font-mono tracking-tighter">
               {step.startAge}-{step.endAge}岁
             </div>
-            <div className="text-xs text-zinc-400">
-              {step.startYear}-{step.endYear}
+            <div className="text-[10px] text-zinc-400 font-mono opacity-50">
+              {step.startYear}
             </div>
           </div>
         ))}
@@ -213,118 +217,91 @@ function DayunPanel({ dayun }: { dayun: DayunInfo }) {
  */
 function ShenqiangPanel({ shenqiang }: { shenqiang: ShenqiangResult }) {
   return (
-    <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4">
-      <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-3">
-        身强身弱分析
+    <div className="pb-8 border-b border-zinc-800 border-dashed relative overflow-hidden">
+      <h2 className="text-sm font-mono tracking-widest text-zinc-400 mb-5 uppercase flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> 日主强弱
       </h2>
 
       {/* 综合结论 */}
-      <div className="mb-4">
-        <div className="flex items-baseline gap-2 mb-2">
-          <div className={`text-2xl font-bold ${
-            shenqiang.conclusion === '身强' ? 'text-red-500' :
-            shenqiang.conclusion === '身弱' ? 'text-blue-500' :
-            'text-green-500'
-          }`}>
+      <div className="mb-6 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
+        <div className="flex items-baseline justify-between mb-3">
+          <div className="text-2xl font-medium tracking-widest text-white">
             {shenqiang.conclusion}
           </div>
-          <div className="text-sm text-zinc-500">
+          <div className="text-xs text-zinc-400 font-mono">
             定性：{shenqiang.dingXingLevel}
           </div>
         </div>
-        <div className="text-sm text-zinc-500 mb-2">
-          定量：{shenqiang.dingLiangLevel} | 同方{shenqiang.tongFangScore} / 异方{shenqiang.yiFangScore}
+        <div className="text-xs text-zinc-400 mb-3 flex justify-between font-mono">
+          <span>定量：{shenqiang.dingLiangLevel}</span>
+          <span>同方 {shenqiang.tongFangScore} / 异方 {shenqiang.yiFangScore}</span>
         </div>
-        <div className="text-sm text-zinc-500 mb-2">
-          综合占比：{shenqiang.totalScore}%
-          {shenqiang.isZhuanWang && <span className="ml-2 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded">专旺格</span>}
-          {shenqiang.isCongWang && <span className="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded">从旺格</span>}
+        <div className="text-xs text-zinc-400 mb-4 flex items-center gap-3">
+          <span>综合占比：{shenqiang.totalScore}%</span>
+          {shenqiang.isZhuanWang && <span className="px-2 py-0.5 border border-zinc-700 bg-zinc-800 text-white rounded font-mono">专旺格</span>}
+          {shenqiang.isCongWang && <span className="px-2 py-0.5 border border-zinc-700 bg-zinc-800 text-white rounded font-mono">从旺格</span>}
         </div>
-        <div className="mt-2 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+        <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
           <div
-            className={`h-full ${
-              shenqiang.conclusion === '身强' ? 'bg-red-500' :
-              shenqiang.conclusion === '身弱' ? 'bg-blue-500' :
-              'bg-green-500'
-            }`}
+            className="h-full bg-zinc-400"
             style={{ width: `${shenqiang.score}%` }}
           />
         </div>
       </div>
 
       {/* 三大核心指标 */}
-      <div className="space-y-2 text-sm mb-4">
+      <div className="space-y-3 text-sm mb-6 pb-6 border-b border-white/[0.05]">
         <div className="flex justify-between items-center">
-          <span className="text-zinc-500">得令（月令）</span>
-          <span className={shenqiang.deLing ? 'text-green-500 font-medium' : 'text-red-500'}>
+          <span className="text-zinc-400">得令 (月令)</span>
+          <span className={shenqiang.deLing ? 'text-zinc-200' : 'text-zinc-400'}>
             {shenqiang.deLing ? '✓ 当令' : '× 失令'}
           </span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-zinc-500">得地（根基）</span>
-          <span className={shenqiang.deDi ? 'text-green-500 font-medium' : 'text-red-500'}>
-            {shenqiang.deDi ? `✓ 有根 (${shenqiang.analysis.diZhuTongFang}个)` : '× 无根'}
+          <span className="text-zinc-400">得地 (根基)</span>
+          <span className={shenqiang.deDi ? 'text-zinc-200' : 'text-zinc-400'}>
+            {shenqiang.deDi ? `✓ 有根 (${shenqiang.analysis.diZhuTongFang})` : '× 无根'}
           </span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-zinc-500">得助（帮扶）</span>
-          <span className={shenqiang.deZhu ? 'text-green-500 font-medium' : 'text-red-500'}>
-            {shenqiang.deZhu ? `✓ 有助 (${shenqiang.analysis.tianGanTongFang}个)` : '× 无助'}
+          <span className="text-zinc-400">得助 (帮扶)</span>
+          <span className={shenqiang.deZhu ? 'text-zinc-200' : 'text-zinc-400'}>
+            {shenqiang.deZhu ? `✓ 有助 (${shenqiang.analysis.tianGanTongFang})` : '× 无助'}
           </span>
         </div>
       </div>
 
-      {/* 数量统计 */}
-      <div className="border-t border-zinc-200 dark:border-zinc-700 pt-3 mb-3">
-        <div className="text-xs text-zinc-500 mb-2">五行数量统计</div>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="flex justify-between">
-            <span className="text-zinc-400">天干</span>
-            <span className="text-zinc-700 dark:text-zinc-300">
-              同方{shenqiang.analysis.tianGanTongFang} / 异方{shenqiang.analysis.tianGanYiFang}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-zinc-400">地支主气</span>
-            <span className="text-zinc-700 dark:text-zinc-300">
-              同方{shenqiang.analysis.diZhuTongFang} / 异方{shenqiang.analysis.diZhuYiFang}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-zinc-400">藏干</span>
-            <span className="text-zinc-700 dark:text-zinc-300">
-              同方{shenqiang.analysis.cangGanTongFang} / 异方{shenqiang.analysis.cangGanYiFang}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-zinc-400">加权得分</span>
-            <span className="text-zinc-700 dark:text-zinc-300">
-              同方{shenqiang.analysis.weightTongFang} / 异方{shenqiang.analysis.weightYiFang}
-            </span>
+      {/* 喜忌 */}
+      <div className="space-y-4 text-sm font-mono bg-zinc-900/30 p-4 rounded-xl border border-white/[0.02]">
+        <div className="flex items-start gap-4">
+          <span className="text-zinc-400 w-12 shrink-0 pt-0.5 uppercase text-xs">Favored</span>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <span className="text-zinc-400">用神</span>
+              <span className="text-zinc-200">{shenqiang.yongShen.join(' · ')}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-zinc-400">喜神</span>
+              <span className="text-zinc-300">{shenqiang.xiShen.join(' · ')}</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* 用神喜神忌神 */}
-      <div className="space-y-2 text-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-zinc-500 w-12">用神：</span>
-          <span className="text-green-500 font-medium">{shenqiang.yongShen.join('、')}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-zinc-500 w-12">喜神：</span>
-          <span className="text-green-500 font-medium">{shenqiang.xiShen.join('、')}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-zinc-500 w-12">忌神：</span>
-          <span className="text-red-500 font-medium">{shenqiang.jiShen.join('、')}</span>
-        </div>
-        {shenqiang.xianShen && shenqiang.xianShen.length > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-zinc-500 w-12">闲神：</span>
-            <span className="text-zinc-600 dark:text-zinc-400 font-medium">{shenqiang.xianShen.join('、')}</span>
+        <div className="w-full h-px bg-white/[0.05]" />
+        <div className="flex items-start gap-4">
+          <span className="text-zinc-400 w-12 shrink-0 pt-0.5 uppercase text-xs">Avoid</span>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <span className="text-zinc-400">忌神</span>
+              <span className="text-zinc-400">{shenqiang.jiShen.join(' · ')}</span>
+            </div>
+            {shenqiang.xianShen && shenqiang.xianShen.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-zinc-400">闲神</span>
+                <span className="text-zinc-400">{shenqiang.xianShen.join(' · ')}</span>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -337,36 +314,37 @@ function LiunianPanel({ liunian }: { liunian: LiunianInfo }) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4">
-      <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-3">
-        {currentYear} 年流年运势
+    <div className="pb-8 relative overflow-hidden">
+      <div className="absolute -right-2 -top-6 text-8xl opacity-[0.02] select-none pointer-events-none font-serif">年</div>
+      <h2 className="text-sm font-mono tracking-widest text-zinc-400 mb-6 uppercase flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> 流年运势
+        </div>
+        <span className="text-zinc-400 border border-white/10 px-2 py-0.5 rounded text-xs">{currentYear}</span>
       </h2>
-      <div className="text-center mb-4">
-        <div className="text-3xl font-bold text-zinc-800 dark:text-zinc-100 mb-1">
+
+      <div className="flex items-center gap-6 mb-6">
+        <div className="text-4xl font-light tracking-widest border-r border-white/10 pr-6 text-white">
           {liunian.gan}{liunian.zhi}
         </div>
-        <div className="text-sm text-zinc-500">
-          生肖：{liunian.zodiac}
-        </div>
-      </div>
-
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-zinc-500">天干</span>
-          <span className="text-zinc-800 dark:text-zinc-200">{liunian.shiShen.tianGan}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-zinc-500">地支</span>
-          <span className="text-zinc-800 dark:text-zinc-200">{liunian.shiShen.diZhi.join('、')}</span>
+        <div className="flex flex-col gap-1 text-sm text-zinc-400">
+          <div className="flex gap-4">
+            <span>天干</span>
+            <span className="text-zinc-300">{liunian.shiShen.tianGan}</span>
+          </div>
+          <div className="flex gap-4">
+            <span>地支</span>
+            <span className="text-zinc-300">{liunian.shiShen.diZhi.join(' · ')}</span>
+          </div>
         </div>
       </div>
 
       {liunian.keywords.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 pt-4 border-t border-white/[0.05]">
           {liunian.keywords.map((keyword, index) => (
             <span
               key={index}
-              className="px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs rounded-full"
+              className="px-3 py-1.5 bg-zinc-900 border border-zinc-700/50 text-zinc-300 text-xs rounded-lg uppercase tracking-wider font-mono"
             >
               {keyword}
             </span>

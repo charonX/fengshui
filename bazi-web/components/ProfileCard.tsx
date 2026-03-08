@@ -43,7 +43,7 @@ export default function ProfileCard({ profile, onView, onDelete }: ProfileCardPr
       <div className="flex justify-between items-center">
         <div>
           <h3 className="font-medium text-zinc-800 dark:text-zinc-100">{profile.name}</h3>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-zinc-400">
             {profile.birthDate} {profile.birthTime} · {profile.gender === 'male' ? '男' : '女'}
           </p>
           {profile.birthPlace && (

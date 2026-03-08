@@ -170,79 +170,88 @@ export default function ProfilesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-900">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col p-4 sm:p-8 max-w-5xl mx-auto w-full">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
-        <Link
-          href="/"
-          className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </Link>
-        <h1 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">档案管理</h1>
+      <header className="flex items-center justify-between mb-12 border-b border-zinc-800 pb-8">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">我的命理档案</h1>
+          <p className="text-zinc-400 text-sm font-mono uppercase tracking-widest">Profile Management System</p>
+        </div>
         <button
           onClick={() => setShowForm(true)}
-          className="text-sm bg-amber-600 text-white px-4 py-2 rounded-full hover:bg-amber-700"
+          className="group relative px-6 py-3 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-zinc-200 transition-colors"
         >
-          新建
+          <span className="relative z-10 flex items-center gap-2">
+            <span className="text-lg leading-none">+</span> 新建档案
+          </span>
         </button>
       </header>
 
       {/* Content */}
-      <main className="p-4">
+      <main className="flex-1">
         {isLoading ? (
-          <div className="text-center py-8 text-zinc-500">加载中...</div>
+          <div className="flex flex-col items-center justify-center h-64 space-y-4">
+            <div className="w-8 h-8 border-2 border-zinc-200 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-zinc-400 animate-pulse tracking-widest font-light">正在推演天机...</p>
+          </div>
         ) : profiles.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">📁</div>
-            <p className="text-zinc-500 mb-4">暂无档案</p>
+          <div className="flex flex-col items-center justify-center h-64 rounded-3xl bg-white/[0.01] border border-white/[0.05] backdrop-blur-md">
+            <div className="text-6xl mb-4 opacity-30 grayscale filter">📜</div>
+            <p className="text-zinc-400 mb-6 font-light">暂无命理档案记录</p>
             <button
               onClick={() => setShowForm(true)}
-              className="text-amber-600 hover:text-amber-700"
+              className="text-zinc-300 hover:text-white font-medium px-4 py-2 border border-zinc-700 rounded-full hover:bg-white/5 transition-colors"
             >
               创建第一个档案
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="flex flex-col">
             {profiles.map((profile) => (
               <div
                 key={profile.id}
-                className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl flex justify-between items-center"
+                className="group py-6 border-b border-zinc-800 hover:border-zinc-700 transition-colors flex items-center justify-between"
               >
-                <div>
-                  <h3 className="font-medium text-zinc-800 dark:text-zinc-100">{profile.name}</h3>
-                  <p className="text-sm text-zinc-500">
-                    {profile.birthDate} {profile.birthTime} · {profile.gender === 'male' ? '男' : '女'}
-                  </p>
-                  {profile.birthPlace && (
-                    <p className="text-xs text-zinc-400 mt-1">
-                      {profile.birthPlace}
-                      {profile.longitude != null && `（东经${profile.longitude.toFixed(1)}°）`}
-                    </p>
-                  )}
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-xl font-bold text-white tracking-wide">
+                      {profile.name}
+                    </h3>
+                    <span className="text-[10px] px-2 py-0.5 border border-zinc-800 text-zinc-400 uppercase tracking-widest">
+                      {profile.gender === 'male' ? '乾造' : '坤造'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs font-mono text-zinc-400 mt-2">
+                    <span>
+                      {profile.birthDate} {profile.birthTime}
+                    </span>
+                    {profile.birthPlace && (
+                      <span className="flex items-center before:content-[''] before:w-1 before:h-1 before:bg-zinc-800 before:rounded-full before:mr-4">
+                        {profile.birthPlace} {profile.longitude != null && `(E${profile.longitude.toFixed(1)}°)`}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex gap-2">
+
+                <div className="flex items-center gap-6 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => handleEdit(profile.id)}
-                    className="text-blue-500 hover:text-blue-600 text-sm"
+                    className="text-xs uppercase tracking-widest font-bold text-zinc-400 hover:text-white transition-colors"
                   >
                     编辑
                   </button>
-                  <Link
-                    href={`/profiles/${profile.id}`}
-                    className="text-amber-600 hover:text-amber-700 text-sm"
-                  >
-                    查看
-                  </Link>
                   <button
                     onClick={() => handleDelete(profile.id)}
-                    className="text-red-500 hover:text-red-600 text-sm"
+                    className="text-xs uppercase tracking-widest font-bold text-zinc-400 hover:text-red-500 transition-colors"
                   >
                     删除
                   </button>
+                  <Link
+                    href={`/profiles/${profile.id}`}
+                    className="ml-4 px-4 py-2 border border-zinc-800 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
+                  >
+                    查看分析 →
+                  </Link>
                 </div>
               </div>
             ))}
@@ -252,71 +261,78 @@ export default function ProfilesPage() {
 
       {/* Modal Form */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4 text-zinc-800 dark:text-zinc-100">
-              {editingId ? '编辑档案' : '新建档案'}
+        <div className="fixed inset-0 bg-black/95 flex items-center justify-center p-4 z-50">
+          <div className="bg-black border border-zinc-800 p-8 sm:p-12 w-full max-w-2xl relative overflow-hidden">
+            <h2 className="text-2xl font-extrabold mb-8 text-white tracking-widest uppercase">
+              {editingId ? '编辑档案信息 / Edit Profile' : '创建新档案 / Initialize Profile'}
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">姓名</label>
+                <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase">Name</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100"
+                  className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white placeholder-zinc-700 transition-colors outline-none"
+                  placeholder="输入姓名或化名"
                 />
               </div>
-              <div>
-                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">出生日期</label>
-                <input
-                  type="date"
-                  required
-                  value={formData.birthDate}
-                  onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">出生时间</label>
-                <input
-                  type="time"
-                  required
-                  value={formData.birthTime}
-                  onChange={(e) => setFormData({ ...formData, birthTime: e.target.value })}
-                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">性别</label>
-                <select
-                  value={formData.gender}
-                  onChange={(e) => setFormData({ ...formData, gender: e.target.value as 'male' | 'female' })}
-                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100"
-                >
-                  <option value="male">男</option>
-                  <option value="female">女</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">出生省份/地区</label>
-                <select
-                  value={formData.province}
-                  onChange={(e) => handleProvinceChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100"
-                >
-                  <option value="">请选择省份</option>
-                  {provinces.map(province => (
-                    <option key={province} value={province}>{province}</option>
-                  ))}
-                </select>
-              </div>
-              {formData.province && (
+
+              <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">
-                    出生城市
-                    <span className="text-xs text-zinc-500 ml-2">（用于真太阳时校正）</span>
+                  <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase">Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.birthDate}
+                    onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
+                    className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white css-invert-calendar-icon outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase">Time</label>
+                  <input
+                    type="time"
+                    required
+                    value={formData.birthTime}
+                    onChange={(e) => setFormData({ ...formData, birthTime: e.target.value })}
+                    className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white outline-none transition-colors css-invert-calendar-icon"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase">Gender</label>
+                  <select
+                    value={formData.gender}
+                    onChange={(e) => setFormData({ ...formData, gender: e.target.value as 'male' | 'female' })}
+                    className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white outline-none transition-colors"
+                  >
+                    <option value="male" className="bg-zinc-900 border-0">男 (乾造)</option>
+                    <option value="female" className="bg-zinc-900 border-0">女 (坤造)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase">Location (Province)</label>
+                  <select
+                    value={formData.province}
+                    onChange={(e) => handleProvinceChange(e.target.value)}
+                    className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white outline-none transition-colors"
+                  >
+                    <option value="" className="bg-zinc-900 text-zinc-400">(可选) 地区</option>
+                    {provinces.map(province => (
+                      <option key={province} value={province} className="bg-zinc-900">{province}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {formData.province && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300 pt-2">
+                  <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase flex items-center justify-between">
+                    <span>City <span className="text-zinc-400 lowercase opacity-70 ml-1">*for solar time correction</span></span>
                   </label>
                   <select
                     value={currentProvinceCities.find(c => c.longitude === formData.longitude)?.name || ''}
@@ -327,18 +343,19 @@ export default function ProfilesPage() {
                         handleCityChange(cityName);
                       }
                     }}
-                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100"
+                    className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white outline-none transition-colors"
                   >
-                    <option value="">请选择城市</option>
+                    <option value="" className="bg-zinc-900 text-zinc-400">选择具体城市</option>
                     {currentProvinceCities.map(city => (
-                      <option key={city.name} value={city.name}>
-                        {city.name}（东经{city.longitude.toFixed(1)}°）
+                      <option key={city.name} value={city.name} className="bg-zinc-900">
+                        {city.name} (E{city.longitude.toFixed(1)}°)
                       </option>
                     ))}
                   </select>
                 </div>
               )}
-              <div className="flex gap-2 pt-4">
+
+              <div className="flex gap-4 pt-10 mt-4 border-t border-zinc-800 border-dashed">
                 <button
                   type="button"
                   onClick={() => {
@@ -346,15 +363,15 @@ export default function ProfilesPage() {
                     setEditingId(null);
                     setFormData({ name: '', birthDate: '', birthTime: '', gender: 'male', birthPlace: '', province: '', longitude: undefined });
                   }}
-                  className="flex-1 px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-700 dark:text-zinc-300"
+                  className="flex-1 px-4 py-4 border border-zinc-800 hover:bg-zinc-900 text-zinc-400 font-bold tracking-widest uppercase text-xs transition-colors"
                 >
-                  取消
+                  取消 Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
+                  className="flex-1 px-4 py-4 bg-white hover:bg-zinc-300 text-black font-bold tracking-widest uppercase text-xs transition-colors"
                 >
-                  {editingId ? '保存' : '创建'}
+                  {editingId ? '保存 Save Changes' : '推演 Execute'}
                 </button>
               </div>
             </form>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { initDatabase } from '@/lib/services/profile-store';
 import { initAgentTools } from '@/lib/services/agent-tools';
+import { getSessionUser } from '@/lib/auth';
 import path from 'path';
 
 // 初始化数据库
@@ -14,7 +15,12 @@ initAgentTools(store, knowledgeDir);
 // GET - 列出所有档案
 export async function GET() {
   try {
-    const profiles = store.listProfiles();
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const profiles = store.listProfiles(user.id);
     return NextResponse.json(profiles);
   } catch (error) {
     console.error('Failed to list profiles:', error);
@@ -28,6 +34,11 @@ export async function GET() {
 // POST - 创建新档案
 export async function POST(request: NextRequest) {
   try {
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { name, birthDate, birthTime, birthPlace, longitude, gender } = body;
 
@@ -44,7 +55,8 @@ export async function POST(request: NextRequest) {
       birthTime,
       birthPlace,
       longitude,
-      gender
+      gender,
+      userId: user.id
     });
 
     return NextResponse.json(profile, { status: 201 });

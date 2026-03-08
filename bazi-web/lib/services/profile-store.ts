@@ -12,6 +12,7 @@ import { calculateBazi, BaziResult } from './bazi';
  */
 export interface UserProfile {
   id: string;
+  userId?: string; // Optional for backward compatibility, but required for new profiles
   name: string;
   birthDate: string; // YYYY-MM-DD
   birthTime: string; // HH:mm
@@ -43,7 +44,7 @@ export interface ProfileStore {
   saveProfile(profile: Omit<UserProfile, 'id' | 'createdAt' | 'updatedAt'>): UserProfile;
   updateProfile(id: string, updates: Partial<UserProfile>): UserProfile | null;
   deleteProfile(id: string): boolean;
-  listProfiles(): UserProfile[];
+  listProfiles(userId?: string): UserProfile[];
 
   // 对话历史
   saveMessage(message: Omit<ChatMessage, 'id' | 'timestamp'>): ChatMessage;
@@ -82,10 +83,23 @@ export class SQLiteProfileStore implements ProfileStore {
         longitude REAL,
         gender TEXT NOT NULL,
         bazi_cache TEXT,
+        user_id TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
     `);
+
+    // Migration: Add user_id column if it doesn't exist (for existing databases)
+    try {
+      const tableInfo = this.db.pragma('table_info(profiles)') as any[];
+      const hasUserId = tableInfo.some(col => col.name === 'user_id');
+      if (!hasUserId) {
+        this.db.exec('ALTER TABLE profiles ADD COLUMN user_id TEXT');
+        console.log('Migrated database: added user_id column to profiles table.');
+      }
+    } catch (error) {
+      console.error('Database migration error:', error);
+    }
 
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS chat_messages (
@@ -116,6 +130,7 @@ export class SQLiteProfileStore implements ProfileStore {
       birthDate: row.birth_date,
       birthTime: row.birth_time,
       birthPlace: row.birth_place,
+      userId: row.user_id,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       baziResult: row.bazi_cache ? JSON.parse(row.bazi_cache) : undefined
@@ -143,8 +158,8 @@ export class SQLiteProfileStore implements ProfileStore {
     }
 
     this.db.prepare(`
-      INSERT INTO profiles (id, name, birth_date, birth_time, birth_place, longitude, gender, bazi_cache, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO profiles (id, name, birth_date, birth_time, birth_place, longitude, gender, bazi_cache, user_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       profile.name,
@@ -154,6 +169,7 @@ export class SQLiteProfileStore implements ProfileStore {
       profile.longitude || null,
       profile.gender,
       baziResult ? JSON.stringify(baziResult) : null,
+      profile.userId || null,
       now,
       now
     );
@@ -200,6 +216,7 @@ export class SQLiteProfileStore implements ProfileStore {
     if (updates.birthPlace !== undefined) { fields.push('birth_place = ?'); values.push(updates.birthPlace); }
     if (updates.longitude !== undefined) { fields.push('longitude = ?'); values.push(updates.longitude); }
     if (updates.gender) { fields.push('gender = ?'); values.push(updates.gender); }
+    if (updates.userId !== undefined) { fields.push('user_id = ?'); values.push(updates.userId); }
     if (baziResult) { fields.push('bazi_cache = ?'); values.push(JSON.stringify(baziResult)); }
 
     fields.push('updated_at = ?');
@@ -220,16 +237,22 @@ export class SQLiteProfileStore implements ProfileStore {
   }
 
   /**
-   * 列出所有档案
+   * 列出档案
    */
-  listProfiles(): UserProfile[] {
-    const rows = this.db.prepare('SELECT * FROM profiles ORDER BY created_at DESC').all() as any[];
+  listProfiles(userId?: string): UserProfile[] {
+    let rows: any[];
+    if (userId) {
+      rows = this.db.prepare('SELECT * FROM profiles WHERE user_id = ? ORDER BY created_at DESC').all(userId) as any[];
+    } else {
+      rows = this.db.prepare('SELECT * FROM profiles ORDER BY created_at DESC').all() as any[];
+    }
 
     return rows.map(row => ({
       ...row,
       birthDate: row.birth_date,
       birthTime: row.birth_time,
       birthPlace: row.birth_place,
+      userId: row.user_id,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       baziResult: row.bazi_cache ? JSON.parse(row.bazi_cache) : undefined

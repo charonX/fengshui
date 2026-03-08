@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { initDatabase } from '@/lib/services/profile-store';
+import { getSessionUser } from '@/lib/auth';
 import path from 'path';
 
 // 初始化数据库
@@ -12,10 +13,15 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
     const profile = store.getProfile(id);
 
-    if (!profile) {
+    if (!profile || profile.userId !== user.id) {
       return NextResponse.json(
         { error: 'Profile not found' },
         { status: 404 }
@@ -38,7 +44,21 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
+    const profile = store.getProfile(id);
+
+    if (!profile || profile.userId !== user.id) {
+      return NextResponse.json(
+        { error: 'Profile not found' },
+        { status: 404 }
+      );
+    }
+
     const success = store.deleteProfile(id);
 
     if (!success) {
@@ -64,12 +84,17 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { name, birthDate, birthTime, birthPlace, longitude, gender } = body;
 
     const existing = store.getProfile(id);
-    if (!existing) {
+    if (!existing || existing.userId !== user.id) {
       return NextResponse.json(
         { error: 'Profile not found' },
         { status: 404 }

@@ -9,12 +9,12 @@ interface SuggestionChipsProps {
 
 export default function SuggestionChips({ suggestions, onSelect }: SuggestionChipsProps) {
   return (
-    <div className="flex flex-wrap gap-2 p-4">
+    <div className="flex flex-wrap gap-3 justify-center">
       {suggestions.map((suggestion, index) => (
         <button
           key={index}
           onClick={() => onSelect(suggestion)}
-          className="px-4 py-2 text-sm bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+          className="px-3 py-1.5 text-[10px] tracking-widest uppercase border border-zinc-800 text-zinc-400 hover:text-white hover:border-white transition-colors"
         >
           {suggestion}
         </button>

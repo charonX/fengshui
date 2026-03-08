@@ -18,21 +18,21 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
+    <form onSubmit={handleSubmit} className="flex gap-4 relative items-end">
       <input
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="输入您的问题..."
+        placeholder="输入您想推演的问题..."
         disabled={disabled}
-        className="flex-1 px-4 py-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+        className="flex-1 px-2 py-3 bg-transparent border-b border-zinc-800 text-white placeholder:text-zinc-400 focus:outline-none focus:border-white transition-colors font-light tracking-wide rounded-none"
       />
       <button
         type="submit"
         disabled={disabled || !input.trim()}
-        className="px-6 py-3 bg-amber-600 text-white rounded-xl font-medium hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-6 py-3 bg-white text-black font-bold tracking-widest text-xs uppercase hover:bg-zinc-300 transition-colors disabled:opacity-30 disabled:hover:bg-white disabled:cursor-not-allowed"
       >
-        发送
+        推演
       </button>
     </form>
   );

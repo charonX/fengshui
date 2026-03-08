@@ -95,51 +95,43 @@ export default function ChatPanel({ profileId, profileName, onBack }: ChatPanelP
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-zinc-900">
+    <div className="flex flex-col h-full bg-transparent relative">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
-        {onBack && (
-          <button
-            onClick={onBack}
-            className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        )}
-        <h1 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">
-          {profileName ? `${profileName}的命理分析` : '八字 AI 命理师'}
+      <header className="flex items-center justify-between px-6 py-4 border-b border-white/[0.05] bg-white/[0.01]">
+        <h1 className="text-sm font-mono tracking-widest text-zinc-300 uppercase flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-white opacity-50"></span>
+          {profileName ? `与 ${profileName} 的元神对话` : '元神对话'}
         </h1>
-        <div className="w-6" /> {/* Spacer for balance */}
       </header>
 
       {/* Messages */}
       {messages.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center p-8">
-          <div className="text-6xl mb-4">🤖</div>
-          <h2 className="text-2xl font-semibold text-zinc-800 dark:text-zinc-100 mb-2">
-            你好，我是你的 AI 命理师
+        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-black">
+          <div className="text-4xl grayscale opacity-50 mb-6 font-mono">[SYS]</div>
+          <h2 className="text-sm font-bold tracking-widest text-zinc-400 mb-2 text-center uppercase">
+            命运解析系统已就绪 / System Ready
           </h2>
-          <p className="text-zinc-600 dark:text-zinc-400 mb-8">
+          <p className="text-zinc-400 font-mono text-xs text-center max-w-sm mb-12 leading-relaxed uppercase tracking-wider">
             {profileName
-              ? `我已经看到${profileName}的八字信息了，有什么想要了解的吗？`
-              : '有什么可以帮你的吗？'}
+              ? `Profile [${profileName}] loaded. Awaiting query.`
+              : 'Awaiting query.'}
           </p>
-          <SuggestionChips
-            suggestions={SUGGESTIONS}
-            onSelect={handleSuggestionClick}
-          />
+          <div className="w-full max-w-md">
+            <SuggestionChips
+              suggestions={SUGGESTIONS}
+              onSelect={handleSuggestionClick}
+            />
+          </div>
         </div>
       ) : (
-        <>
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
           <MessageList messages={messages} isLoading={isLoading} />
           <div ref={messagesEndRef} />
-        </>
+        </div>
       )}
 
       {/* Input */}
-      <div className="p-4 border-t border-zinc-200 dark:border-zinc-700">
+      <div className="p-4 border-t border-zinc-800 bg-black">
         <ChatInput onSend={handleSend} disabled={isLoading} />
       </div>
     </div>
