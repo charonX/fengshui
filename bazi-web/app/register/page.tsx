@@ -41,11 +41,11 @@ export default function RegisterPage() {
     return (
         <div className="flex min-h-[calc(100vh-64px)] items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-black">
             <div className="w-full max-w-sm space-y-8">
-                <div className="text-left pb-8 border-b border-zinc-800 border-dashed">
+                <div className="text-left pb-8 border-b border-stone-800 border-dashed">
                     <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-white">
                         注册玄学代理
                     </h2>
-                    <p className="mt-3 text-sm text-zinc-400 font-mono">
+                    <p className="mt-3 text-sm text-stone-400 font-mono">
                         Initialize Bazi Profile
                     </p>
                 </div>
@@ -56,7 +56,7 @@ export default function RegisterPage() {
                         </div>
                     )}
                     <div>
-                        <label htmlFor="email-address" className="block text-xs font-bold tracking-widest uppercase text-zinc-400 mb-2">
+                        <label htmlFor="email-address" className="block text-xs font-bold tracking-widest uppercase text-stone-400 mb-2">
                             电子邮箱
                         </label>
                         <input
@@ -65,14 +65,14 @@ export default function RegisterPage() {
                             type="email"
                             autoComplete="email"
                             required
-                            className="w-full pb-3 border-b border-zinc-800 focus:border-white bg-transparent text-white placeholder-zinc-700 transition-colors outline-none text-lg"
+                            className="w-full pb-3 border-b border-stone-800 focus:border-white bg-transparent text-white placeholder-stone-700 transition-colors outline-none text-lg"
                             placeholder="输入您的邮箱地址"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
                     <div className="pt-4">
-                        <label htmlFor="password" className="block text-xs font-bold tracking-widest uppercase text-zinc-400 mb-2">
+                        <label htmlFor="password" className="block text-xs font-bold tracking-widest uppercase text-stone-400 mb-2">
                             密码
                         </label>
                         <input
@@ -81,7 +81,7 @@ export default function RegisterPage() {
                             type="password"
                             autoComplete="new-password"
                             required
-                            className="w-full pb-3 border-b border-zinc-800 focus:border-white bg-transparent text-white placeholder-zinc-700 transition-colors outline-none text-lg"
+                            className="w-full pb-3 border-b border-stone-800 focus:border-white bg-transparent text-white placeholder-stone-700 transition-colors outline-none text-lg"
                             placeholder="设置安全的登录密码"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -92,15 +92,15 @@ export default function RegisterPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex w-full justify-center bg-white px-4 py-4 text-xs tracking-widest font-bold text-black uppercase hover:bg-zinc-300 transition-colors disabled:opacity-50"
+                            className="flex w-full justify-center bg-white px-4 py-4 text-xs tracking-widest font-bold text-black uppercase hover:bg-stone-300 transition-colors disabled:opacity-50"
                         >
                             {loading ? 'Initializing...' : 'Create Record'}
                         </button>
                     </div>
 
-                    <div className="text-center text-xs tracking-widest font-bold text-zinc-400 mt-6 pt-6 uppercase">
+                    <div className="text-center text-xs tracking-widest font-bold text-stone-400 mt-6 pt-6 uppercase">
                         已有账号？{' '}
-                        <Link href="/login" className="text-white hover:text-zinc-300 transition-colors border-b border-white pb-0.5">
+                        <Link href="/login" className="text-white hover:text-stone-300 transition-colors border-b border-white pb-0.5">
                             直接登录
                         </Link>
                     </div>

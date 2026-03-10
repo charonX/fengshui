@@ -1,22 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthHeader from "@/components/AuthHeader";
 import { getSessionUser } from "@/lib/auth";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Bazi Web AI",
-  description: "AI-powered Bazi Application",
+  title: "Bazi Web AI - 探索命运的奥秘",
+  description: "结合中华传统命理与人工智能，提供专业的八字排盘与流年运势推演服务。",
 };
 
 export default async function RootLayout({
@@ -27,12 +16,12 @@ export default async function RootLayout({
   const user = await getSessionUser();
 
   return (
-    <html lang="en">
+    <html lang="zh-CN">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-zinc-100 min-h-screen flex flex-col overflow-x-hidden`}
+        className={`antialiased bg-background text-foreground min-h-screen flex flex-col overflow-x-hidden select-none font-sans`}
       >
         {/* Global Minimalist Background */}
-        <div className="fixed inset-0 bg-black pointer-events-none z-0" />
+        <div className="fixed inset-0 bg-background pointer-events-none z-0" />
 
         <AuthHeader user={user} />
         <main className="flex-1 relative z-10 pt-16">{children}</main>

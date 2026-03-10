@@ -16,9 +16,6 @@ export default function AuthHeader({ user }: { user: { email: string } | null })
         }
     };
 
-    // Placeholder for logoutAction, assuming it's a server action or similar.
-    // This would need to be defined elsewhere or imported.
-    // For the purpose of this edit, we'll assume it's available in scope.
     const logoutAction = async () => {
         try {
             await fetch('/api/auth/logout', { method: 'POST' });
@@ -30,13 +27,13 @@ export default function AuthHeader({ user }: { user: { email: string } | null })
     };
 
     return (
-        <header className="fixed top-0 inset-x-0 z-50 flex h-24 items-center justify-between bg-black px-6 sm:px-12">
+        <header className="fixed top-0 inset-x-0 z-50 flex h-24 items-center justify-between bg-background/80 backdrop-blur-md px-6 sm:px-12 border-b border-foreground/5">
             <div className="flex items-center gap-x-8">
-                <Link href="/" className="text-xl font-bold tracking-wider text-zinc-200 hover:text-white transition-colors">
-                    玄学智能代理
+                <Link href="/" className="text-xl font-serif font-bold tracking-widest text-foreground hover:text-cta transition-colors">
+                    玄学智能<span className="text-cta">代理</span>
                 </Link>
                 {user && (
-                    <Link href="/profiles" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+                    <Link href="/profiles" className="text-sm font-medium text-muted hover:text-foreground transition-colors hidden md:block">
                         命理档案
                     </Link>
                 )}
@@ -46,14 +43,14 @@ export default function AuthHeader({ user }: { user: { email: string } | null })
                     <>
                         <Link
                             href="/profiles"
-                            className="text-sm font-bold tracking-widest uppercase text-zinc-400 hover:text-white transition-colors"
+                            className="text-sm font-bold tracking-widest uppercase text-muted hover:text-foreground transition-colors"
                         >
                             档案中心
                         </Link>
                         <form action={logoutAction}>
                             <button
                                 type="submit"
-                                className="text-sm font-bold tracking-widest uppercase text-zinc-400 hover:text-white transition-colors"
+                                className="text-sm font-bold tracking-widest uppercase text-muted hover:text-cta transition-colors cursor-pointer"
                             >
                                 退出登录
                             </button>
@@ -61,12 +58,12 @@ export default function AuthHeader({ user }: { user: { email: string } | null })
                     </>
                 ) : (
                     <>
-                        <Link href="/login" className="text-sm font-bold tracking-widest uppercase text-zinc-400 hover:text-white transition-colors">
+                        <Link href="/login" className="text-sm font-bold tracking-widest uppercase text-muted hover:text-foreground transition-colors cursor-pointer">
                             登录
                         </Link>
                         <Link
                             href="/register"
-                            className="text-sm font-bold tracking-widest uppercase px-6 py-2.5 bg-white text-black hover:bg-zinc-200 transition-colors"
+                            className="text-sm font-bold tracking-widest uppercase px-6 py-2.5 btn-primary"
                         >
                             创建账号
                         </Link>

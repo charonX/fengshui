@@ -172,14 +172,14 @@ export default function ProfilesPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col p-4 sm:p-8 max-w-5xl mx-auto w-full">
       {/* Header */}
-      <header className="flex items-center justify-between mb-12 border-b border-zinc-800 pb-8">
+      <header className="flex items-center justify-between mb-12 border-b border-stone-800 pb-8">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">我的命理档案</h1>
-          <p className="text-zinc-400 text-sm font-mono uppercase tracking-widest">Profile Management System</p>
+          <p className="text-stone-400 text-sm font-mono uppercase tracking-widest">Profile Management System</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="group relative px-6 py-3 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-zinc-200 transition-colors"
+          className="group relative px-6 py-3 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-stone-200 transition-colors"
         >
           <span className="relative z-10 flex items-center gap-2">
             <span className="text-lg leading-none">+</span> 新建档案
@@ -191,16 +191,16 @@ export default function ProfilesPage() {
       <main className="flex-1">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-64 space-y-4">
-            <div className="w-8 h-8 border-2 border-zinc-200 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-zinc-400 animate-pulse tracking-widest font-light">正在推演天机...</p>
+            <div className="w-8 h-8 border-2 border-stone-200 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-stone-400 animate-pulse tracking-widest font-light">正在推演天机...</p>
           </div>
         ) : profiles.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 rounded-3xl bg-white/[0.01] border border-white/[0.05] backdrop-blur-md">
             <div className="text-6xl mb-4 opacity-30 grayscale filter">📜</div>
-            <p className="text-zinc-400 mb-6 font-light">暂无命理档案记录</p>
+            <p className="text-stone-400 mb-6 font-light">暂无命理档案记录</p>
             <button
               onClick={() => setShowForm(true)}
-              className="text-zinc-300 hover:text-white font-medium px-4 py-2 border border-zinc-700 rounded-full hover:bg-white/5 transition-colors"
+              className="text-stone-300 hover:text-white font-medium px-4 py-2 border border-stone-700 rounded-full hover:bg-white/5 transition-colors"
             >
               创建第一个档案
             </button>
@@ -210,23 +210,23 @@ export default function ProfilesPage() {
             {profiles.map((profile) => (
               <div
                 key={profile.id}
-                className="group py-6 border-b border-zinc-800 hover:border-zinc-700 transition-colors flex items-center justify-between"
+                className="group py-6 border-b border-stone-800 hover:border-stone-700 transition-colors flex items-center justify-between"
               >
                 <div className="flex flex-col">
                   <div className="flex items-center gap-3 mb-1">
                     <h3 className="text-xl font-bold text-white tracking-wide">
                       {profile.name}
                     </h3>
-                    <span className="text-[10px] px-2 py-0.5 border border-zinc-800 text-zinc-400 uppercase tracking-widest">
+                    <span className="text-[10px] px-2 py-0.5 border border-stone-800 text-stone-400 uppercase tracking-widest">
                       {profile.gender === 'male' ? '乾造' : '坤造'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 text-xs font-mono text-zinc-400 mt-2">
+                  <div className="flex items-center gap-4 text-xs font-mono text-stone-400 mt-2">
                     <span>
                       {profile.birthDate} {profile.birthTime}
                     </span>
                     {profile.birthPlace && (
-                      <span className="flex items-center before:content-[''] before:w-1 before:h-1 before:bg-zinc-800 before:rounded-full before:mr-4">
+                      <span className="flex items-center before:content-[''] before:w-1 before:h-1 before:bg-stone-800 before:rounded-full before:mr-4">
                         {profile.birthPlace} {profile.longitude != null && `(E${profile.longitude.toFixed(1)}°)`}
                       </span>
                     )}
@@ -236,19 +236,19 @@ export default function ProfilesPage() {
                 <div className="flex items-center gap-6 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => handleEdit(profile.id)}
-                    className="text-xs uppercase tracking-widest font-bold text-zinc-400 hover:text-white transition-colors"
+                    className="text-xs uppercase tracking-widest font-bold text-stone-400 hover:text-white transition-colors"
                   >
                     编辑
                   </button>
                   <button
                     onClick={() => handleDelete(profile.id)}
-                    className="text-xs uppercase tracking-widest font-bold text-zinc-400 hover:text-red-500 transition-colors"
+                    className="text-xs uppercase tracking-widest font-bold text-stone-400 hover:text-red-500 transition-colors"
                   >
                     删除
                   </button>
                   <Link
                     href={`/profiles/${profile.id}`}
-                    className="ml-4 px-4 py-2 border border-zinc-800 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
+                    className="ml-4 px-4 py-2 border border-stone-800 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
                   >
                     查看分析 →
                   </Link>
@@ -262,68 +262,68 @@ export default function ProfilesPage() {
       {/* Modal Form */}
       {showForm && (
         <div className="fixed inset-0 bg-black/95 flex items-center justify-center p-4 z-50">
-          <div className="bg-black border border-zinc-800 p-8 sm:p-12 w-full max-w-2xl relative overflow-hidden">
+          <div className="bg-black border border-stone-800 p-8 sm:p-12 w-full max-w-2xl relative overflow-hidden">
             <h2 className="text-2xl font-extrabold mb-8 text-white tracking-widest uppercase">
               {editingId ? '编辑档案信息 / Edit Profile' : '创建新档案 / Initialize Profile'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase">Name</label>
+                <label className="block text-xs font-mono tracking-widest text-stone-400 mb-2 uppercase">Name</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white placeholder-zinc-700 transition-colors outline-none"
+                  className="w-full px-4 py-2.5 border-b border-stone-800 focus:border-white bg-transparent text-white placeholder-stone-700 transition-colors outline-none"
                   placeholder="输入姓名或化名"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase">Date</label>
+                  <label className="block text-xs font-mono tracking-widest text-stone-400 mb-2 uppercase">Date</label>
                   <input
                     type="date"
                     required
                     value={formData.birthDate}
                     onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                    className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white css-invert-calendar-icon outline-none transition-colors"
+                    className="w-full px-4 py-2.5 border-b border-stone-800 focus:border-white bg-transparent text-white css-invert-calendar-icon outline-none transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase">Time</label>
+                  <label className="block text-xs font-mono tracking-widest text-stone-400 mb-2 uppercase">Time</label>
                   <input
                     type="time"
                     required
                     value={formData.birthTime}
                     onChange={(e) => setFormData({ ...formData, birthTime: e.target.value })}
-                    className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white outline-none transition-colors css-invert-calendar-icon"
+                    className="w-full px-4 py-2.5 border-b border-stone-800 focus:border-white bg-transparent text-white outline-none transition-colors css-invert-calendar-icon"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase">Gender</label>
+                  <label className="block text-xs font-mono tracking-widest text-stone-400 mb-2 uppercase">Gender</label>
                   <select
                     value={formData.gender}
                     onChange={(e) => setFormData({ ...formData, gender: e.target.value as 'male' | 'female' })}
-                    className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white outline-none transition-colors"
+                    className="w-full px-4 py-2.5 border-b border-stone-800 focus:border-white bg-transparent text-white outline-none transition-colors"
                   >
-                    <option value="male" className="bg-zinc-900 border-0">男 (乾造)</option>
-                    <option value="female" className="bg-zinc-900 border-0">女 (坤造)</option>
+                    <option value="male" className="bg-stone-900 border-0">男 (乾造)</option>
+                    <option value="female" className="bg-stone-900 border-0">女 (坤造)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase">Location (Province)</label>
+                  <label className="block text-xs font-mono tracking-widest text-stone-400 mb-2 uppercase">Location (Province)</label>
                   <select
                     value={formData.province}
                     onChange={(e) => handleProvinceChange(e.target.value)}
-                    className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white outline-none transition-colors"
+                    className="w-full px-4 py-2.5 border-b border-stone-800 focus:border-white bg-transparent text-white outline-none transition-colors"
                   >
-                    <option value="" className="bg-zinc-900 text-zinc-400">(可选) 地区</option>
+                    <option value="" className="bg-stone-900 text-stone-400">(可选) 地区</option>
                     {provinces.map(province => (
-                      <option key={province} value={province} className="bg-zinc-900">{province}</option>
+                      <option key={province} value={province} className="bg-stone-900">{province}</option>
                     ))}
                   </select>
                 </div>
@@ -331,8 +331,8 @@ export default function ProfilesPage() {
 
               {formData.province && (
                 <div className="animate-in fade-in slide-in-from-top-2 duration-300 pt-2">
-                  <label className="block text-xs font-mono tracking-widest text-zinc-400 mb-2 uppercase flex items-center justify-between">
-                    <span>City <span className="text-zinc-400 lowercase opacity-70 ml-1">*for solar time correction</span></span>
+                  <label className="block text-xs font-mono tracking-widest text-stone-400 mb-2 uppercase flex items-center justify-between">
+                    <span>City <span className="text-stone-400 lowercase opacity-70 ml-1">*for solar time correction</span></span>
                   </label>
                   <select
                     value={currentProvinceCities.find(c => c.longitude === formData.longitude)?.name || ''}
@@ -343,11 +343,11 @@ export default function ProfilesPage() {
                         handleCityChange(cityName);
                       }
                     }}
-                    className="w-full px-4 py-2.5 border-b border-zinc-800 focus:border-white bg-transparent text-white outline-none transition-colors"
+                    className="w-full px-4 py-2.5 border-b border-stone-800 focus:border-white bg-transparent text-white outline-none transition-colors"
                   >
-                    <option value="" className="bg-zinc-900 text-zinc-400">选择具体城市</option>
+                    <option value="" className="bg-stone-900 text-stone-400">选择具体城市</option>
                     {currentProvinceCities.map(city => (
-                      <option key={city.name} value={city.name} className="bg-zinc-900">
+                      <option key={city.name} value={city.name} className="bg-stone-900">
                         {city.name} (E{city.longitude.toFixed(1)}°)
                       </option>
                     ))}
@@ -355,7 +355,7 @@ export default function ProfilesPage() {
                 </div>
               )}
 
-              <div className="flex gap-4 pt-10 mt-4 border-t border-zinc-800 border-dashed">
+              <div className="flex gap-4 pt-10 mt-4 border-t border-stone-800 border-dashed">
                 <button
                   type="button"
                   onClick={() => {
@@ -363,13 +363,13 @@ export default function ProfilesPage() {
                     setEditingId(null);
                     setFormData({ name: '', birthDate: '', birthTime: '', gender: 'male', birthPlace: '', province: '', longitude: undefined });
                   }}
-                  className="flex-1 px-4 py-4 border border-zinc-800 hover:bg-zinc-900 text-zinc-400 font-bold tracking-widest uppercase text-xs transition-colors"
+                  className="flex-1 px-4 py-4 border border-stone-800 hover:bg-stone-900 text-stone-400 font-bold tracking-widest uppercase text-xs transition-colors"
                 >
                   取消 Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-4 bg-white hover:bg-zinc-300 text-black font-bold tracking-widest uppercase text-xs transition-colors"
+                  className="flex-1 px-4 py-4 bg-white hover:bg-stone-300 text-black font-bold tracking-widest uppercase text-xs transition-colors"
                 >
                   {editingId ? '保存 Save Changes' : '推演 Execute'}
                 </button>

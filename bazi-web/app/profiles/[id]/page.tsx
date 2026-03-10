@@ -89,8 +89,8 @@ export default function ProfileDetailPage() {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="flex flex-col items-center justify-center space-y-4">
-          <div className="w-8 h-8 border-2 border-zinc-200 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-zinc-400 animate-pulse tracking-widest font-light">推演命盘中...</p>
+          <div className="w-8 h-8 border-2 border-stone-200 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-stone-400 animate-pulse tracking-widest font-light">推演命盘中...</p>
         </div>
       </div>
     );
@@ -101,10 +101,10 @@ export default function ProfileDetailPage() {
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="text-center bg-white/[0.02] border border-white/10 p-8 rounded-3xl backdrop-blur-md">
           <div className="text-5xl mb-6 opacity-50 grayscale">⚠️</div>
-          <p className="text-zinc-300 mb-6 text-lg">{error || '档案不存在或权限不足'}</p>
+          <p className="text-stone-300 mb-6 text-lg">{error || '档案不存在或权限不足'}</p>
           <button
             onClick={() => router.push('/profiles')}
-            className="px-6 py-2.5 bg-zinc-100 text-black rounded-full hover:bg-white transition-colors font-medium"
+            className="px-6 py-2.5 bg-stone-100 text-black rounded-full hover:bg-white transition-colors font-medium"
           >
             返回档案列表
           </button>
@@ -120,19 +120,19 @@ export default function ProfileDetailPage() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push('/profiles')}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors border border-white/10"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 text-stone-400 hover:text-white hover:bg-white/10 transition-colors border border-white/10"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <div>
-            <h1 className="text-xl font-medium tracking-widest text-zinc-200">
-              {profile.name} <span className="text-zinc-400 font-light mx-2">|</span> 命理全息解析
+            <h1 className="text-xl font-medium tracking-widest text-stone-200">
+              {profile.name} <span className="text-stone-400 font-light mx-2">|</span> 命理全息解析
             </h1>
           </div>
         </div>
-        <div className="text-xs font-mono text-zinc-400 bg-white/5 px-4 py-1.5 rounded-full border border-white/10 tracking-widest">
+        <div className="text-xs font-mono text-stone-400 bg-white/5 px-4 py-1.5 rounded-full border border-white/10 tracking-widest">
           {profile.birthDate} {profile.birthTime}
         </div>
       </header>
