@@ -217,7 +217,10 @@ export interface ChatResponse {
 /**
  * 处理聊天请求
  */
-export async function handleChat(request: ChatRequest): Promise<ChatResponse> {
+export async function handleChat(
+  request: ChatRequest,
+  onChunk?: (text: string) => void
+): Promise<ChatResponse> {
   const tools = getAllTools();
 
   // 如果有 profileId，获取档案信息并计算完整上下文
@@ -249,13 +252,21 @@ export async function handleChat(request: ChatRequest): Promise<ChatResponse> {
   }));
 
   // 调用 API
-  const response = await anthropic.messages.create({
+  const stream = anthropic.messages.stream({
     model: process.env.ANTHROPIC_MODEL || 'qwen3.5-plus',
     max_tokens: 4096,
     system: systemPrompt,
     tools,
     messages
   });
+
+  if (onChunk) {
+    stream.on('text', (textDelta) => {
+      onChunk(textDelta);
+    });
+  }
+
+  const response = await stream.finalMessage();
 
   // 处理响应
   const contentBlocks = response.content;
@@ -296,7 +307,7 @@ export async function handleChat(request: ChatRequest): Promise<ChatResponse> {
     }
 
     // 发送工具结果回给模型
-    const toolResponse = await anthropic.messages.create({
+    const toolStream = anthropic.messages.stream({
       model: process.env.ANTHROPIC_MODEL || 'qwen3.5-plus',
       max_tokens: 4096,
       system: systemPrompt,
@@ -321,6 +332,14 @@ export async function handleChat(request: ChatRequest): Promise<ChatResponse> {
         }
       ]
     });
+
+    if (onChunk) {
+      toolStream.on('text', (textDelta) => {
+        onChunk(textDelta);
+      });
+    }
+
+    const toolResponse = await toolStream.finalMessage();
 
     // 提取最终文本响应
     textContent = '';
