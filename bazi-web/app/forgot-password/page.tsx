@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -15,21 +15,21 @@ export default function LoginPage() {
         e.preventDefault();
         setLoading(true);
         setError('');
+        setMessage('');
 
         try {
-            const res = await fetch('/api/auth/login', {
+            const res = await fetch('/api/auth/forgot-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email }),
             });
 
+            const data = await res.json();
+
             if (res.ok) {
-                // Redirect to homepage or dashboard after login
-                router.push('/');
-                router.refresh(); // Refresh layout to grab new session user
+                setMessage(data.message || 'Password reset link sent.');
             } else {
-                const data = await res.json();
-                setError(data.error || 'Failed to login');
+                setError(data.error || 'Failed to request password reset');
             }
         } catch (err: any) {
             setError('An unexpected error occurred');
@@ -43,7 +43,7 @@ export default function LoginPage() {
             <div className="w-full max-w-sm space-y-8">
                 <div className="text-left pb-8 border-b border-stone-800 border-dashed">
                     <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-white">
-                        登录玄学代理
+                        账户恢复
                     </h2>
                     <p className="mt-3 text-sm text-stone-400 font-mono">
                         System Access / Bazi Protocol
@@ -53,6 +53,11 @@ export default function LoginPage() {
                     {error && (
                         <div className="bg-red-900/40 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl text-sm text-center backdrop-blur-sm">
                             {error}
+                        </div>
+                    )}
+                    {message && (
+                        <div className="bg-green-900/40 border border-green-500/50 text-green-200 px-4 py-3 rounded-xl text-sm text-center backdrop-blur-sm">
+                            {message}
                         </div>
                     )}
                     <div>
@@ -66,47 +71,26 @@ export default function LoginPage() {
                             autoComplete="email"
                             required
                             className="w-full pb-3 border-b border-stone-800 focus:border-white bg-transparent text-white placeholder-stone-700 transition-colors outline-none text-lg"
-                            placeholder="输入邮箱地址"
+                            placeholder="输入注册时的邮箱"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </div>
-                    <div className="pt-4">
-                        <div className="flex justify-between items-center mb-2">
-                            <label htmlFor="password" className="block text-xs font-bold tracking-widest uppercase text-stone-400">
-                                密码
-                            </label>
-                            <Link href="/forgot-password" className="text-xs text-stone-500 hover:text-white transition-colors border-b border-transparent hover:border-white pb-0.5">
-                                忘记密码？
-                            </Link>
-                        </div>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            autoComplete="current-password"
-                            required
-                            className="w-full pb-3 border-b border-stone-800 focus:border-white bg-transparent text-white placeholder-stone-700 transition-colors outline-none text-lg"
-                            placeholder="请输入登录密码"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
 
                     <div className="pt-8">
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || !!message}
                             className="flex w-full justify-center bg-white px-4 py-4 text-xs tracking-widest font-bold text-black uppercase hover:bg-stone-300 transition-colors disabled:opacity-50"
                         >
-                            {loading ? 'Authenticating...' : 'Access System'}
+                            {loading ? 'Sending Request...' : '发送重置链接'}
                         </button>
                     </div>
 
-                    <div className="text-center text-xs tracking-widest font-bold text-stone-400 mt-6 pt-6 uppercase">
-                        没有账号？{' '}
-                        <Link href="/register" className="text-white hover:text-stone-300 transition-colors border-b border-white pb-0.5">
-                            创建档案
+                    <div className="text-center text-xs tracking-widest font-bold text-stone-400 mt-6 pt-6 uppercase border-t border-stone-800 border-dashed">
+                        想起密码了？{' '}
+                        <Link href="/login" className="text-white hover:text-stone-300 transition-colors border-b border-white pb-0.5">
+                            返回登录
                         </Link>
                     </div>
                 </form>

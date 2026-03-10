@@ -12,6 +12,9 @@ export interface UserStore {
     getUserById(id: string): User | null;
     getUserByEmail(email: string): User | null;
     createUser(email: string, passwordHash: string): User;
+    createPasswordResetToken(email: string): string | null;
+    verifyPasswordResetToken(token: string): string | null;
+    updatePassword(userId: string, newPasswordHash: string): void;
 }
 
 export class SQLiteUserStore implements UserStore {
@@ -34,7 +37,13 @@ export class SQLiteUserStore implements UserStore {
         email TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
         created_at TEXT NOT NULL
-      )
+      );
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        token TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+      );
     `);
     }
 
@@ -77,6 +86,41 @@ export class SQLiteUserStore implements UserStore {
             passwordHash,
             createdAt: new Date(now)
         };
+    }
+
+    createPasswordResetToken(email: string): string | null {
+        const user = this.getUserByEmail(email);
+        if (!user) return null;
+
+        const token = require('crypto').randomBytes(32).toString('hex');
+        // Token expires in 1 hour
+        const expiresAt = new Date(Date.now() + 3600000).toISOString();
+
+        this.db.prepare(`
+            INSERT INTO password_reset_tokens (token, user_id, expires_at)
+            VALUES (?, ?, ?)
+        `).run(token, user.id, expiresAt);
+
+        return token;
+    }
+
+    verifyPasswordResetToken(token: string): string | null {
+        const row = this.db.prepare('SELECT user_id, expires_at FROM password_reset_tokens WHERE token = ?').get(token) as any;
+        if (!row) return null;
+
+        if (new Date() > new Date(row.expires_at)) {
+            // Expired
+            this.db.prepare('DELETE FROM password_reset_tokens WHERE token = ?').run(token);
+            return null;
+        }
+
+        return row.user_id;
+    }
+
+    updatePassword(userId: string, newPasswordHash: string): void {
+        this.db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(newPasswordHash, userId);
+        // Clear all reset tokens for this user
+        this.db.prepare('DELETE FROM password_reset_tokens WHERE user_id = ?').run(userId);
     }
 
     close() {
